@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>图片浏览器</title>
+</head>
+<body>
+<button id="open-folder-btn" onclick="openFolder()">打开文件夹</button>
+<button id="prev-btn" onclick="changeImage(-1)" disabled>上一张</button>
+<button id="next-btn" onclick="changeImage(1)" disabled>下一张</button>
+<canvas id="image-canvas" width="500" height="500"></canvas>
+<div id="spinner-container" class="d-none">加载中...</div>
+<script src="your_css.js"></script>
+</body>
+</html>

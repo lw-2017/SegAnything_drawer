@@ -1,0 +1,1402 @@
+
+<!-- saved from url=(0093)https://sfile.chatglm.cn/chatglm4/fa370b54-6c8f-425c-a4f9-b2ab30c2b18a/modifiedSegDrawer.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+	<!-- <link href="./all.css" rel="stylesheet"> -->
+	<link href="./modifiedSegDrawer_files/all.min.css" rel="stylesheet">
+  <link href="./modifiedSegDrawer_files/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /*@font-face {
+      font-family: 'FontAwesome';
+      src: url('./fa-solid-900.ttf') format('truetype'),
+      url('./fa-solid-900.woff2') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+    }*/
+
+    #canvas-wrapper {
+      position: relative;
+      width: 500px;
+      height: 500px;
+    }
+
+    #slider-wrapper {
+      display: none;
+      position: absolute; /* Add this line */
+      z-index: 10; /* Add this line */
+      top: 47px; /* Adjust this value */
+      right: 50px; /* Adjust this value */
+    }
+
+    #canvas {
+      position: absolute;
+      border: 1px solid black;
+      width: 100%;
+      height: 100%;
+    }
+
+    #image-canvas, #temp-canvas {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+
+    .button-wrapper {
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .button {
+      background-color: #4CAF50;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      padding: 4px 8px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 12px;
+      margin: 2px 0;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+    }
+
+    #file-input-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 500px;
+      height: 500px;
+      cursor: pointer;
+    }
+
+    #file-input-wrapper input[type=file] {
+      opacity: 0;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    #spinner-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    #spinner-container span {
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      color: #333;
+      margin-top: 10px;
+    }
+
+    /* Sparkles */
+    .sparkles-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      pointer-events: none;
+      opacity: 0; /* Hide the sparkles by default */
+    }
+
+    .sparkle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background-color: #fff;
+      border-radius: 50%;
+      animation: sparkle 4s linear infinite;
+    }
+
+    @keyframes sparkle {
+      0% {
+        transform: translateX(-10%) scale(0);
+        opacity: 0;
+      }
+      5% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(110%) scale(1);
+        opacity: 0;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+	
+	<div id="canvas-wrapper">
+	  <canvas id="canvas" width="500" height="500"></canvas>
+    <canvas id="image-canvas" width="500" height="500" style="z-index: -1;"></canvas>
+    <canvas id="temp-canvas" style="pointer-events: none; z-index: 1;" width="500" height="500"></canvas>
+    <div class="sparkles-container"><div class="sparkle" style="top: 5%; left: 0%; animation-duration: 4s; animation-delay: 0s;"></div><div class="sparkle" style="top: 5%; left: 5%; animation-duration: 4s; animation-delay: 0.1s;"></div><div class="sparkle" style="top: 5%; left: 10%; animation-duration: 4s; animation-delay: 0.2s;"></div><div class="sparkle" style="top: 5%; left: 15%; animation-duration: 4s; animation-delay: 0.3s;"></div><div class="sparkle" style="top: 5%; left: 20%; animation-duration: 4s; animation-delay: 0.4s;"></div><div class="sparkle" style="top: 5%; left: 25%; animation-duration: 4s; animation-delay: 0.5s;"></div><div class="sparkle" style="top: 5%; left: 30%; animation-duration: 4s; animation-delay: 0.6s;"></div><div class="sparkle" style="top: 5%; left: 35%; animation-duration: 4s; animation-delay: 0.7s;"></div><div class="sparkle" style="top: 5%; left: 40%; animation-duration: 4s; animation-delay: 0.8s;"></div><div class="sparkle" style="top: 5%; left: 45%; animation-duration: 4s; animation-delay: 0.9s;"></div><div class="sparkle" style="top: 5%; left: 50%; animation-duration: 4s; animation-delay: 1s;"></div><div class="sparkle" style="top: 5%; left: 55%; animation-duration: 4s; animation-delay: 1.1s;"></div><div class="sparkle" style="top: 5%; left: 60%; animation-duration: 4s; animation-delay: 1.2s;"></div><div class="sparkle" style="top: 5%; left: 65%; animation-duration: 4s; animation-delay: 1.3s;"></div><div class="sparkle" style="top: 5%; left: 70%; animation-duration: 4s; animation-delay: 1.4s;"></div><div class="sparkle" style="top: 5%; left: 75%; animation-duration: 4s; animation-delay: 1.5s;"></div><div class="sparkle" style="top: 5%; left: 80%; animation-duration: 4s; animation-delay: 1.6s;"></div><div class="sparkle" style="top: 5%; left: 85%; animation-duration: 4s; animation-delay: 1.7s;"></div><div class="sparkle" style="top: 5%; left: 90%; animation-duration: 4s; animation-delay: 1.8s;"></div><div class="sparkle" style="top: 5%; left: 95%; animation-duration: 4s; animation-delay: 1.9s;"></div><div class="sparkle" style="top: 15%; left: 0%; animation-duration: 4s; animation-delay: 0.1s;"></div><div class="sparkle" style="top: 15%; left: 5%; animation-duration: 4s; animation-delay: 0.2s;"></div><div class="sparkle" style="top: 15%; left: 10%; animation-duration: 4s; animation-delay: 0.3s;"></div><div class="sparkle" style="top: 15%; left: 15%; animation-duration: 4s; animation-delay: 0.4s;"></div><div class="sparkle" style="top: 15%; left: 20%; animation-duration: 4s; animation-delay: 0.5s;"></div><div class="sparkle" style="top: 15%; left: 25%; animation-duration: 4s; animation-delay: 0.6s;"></div><div class="sparkle" style="top: 15%; left: 30%; animation-duration: 4s; animation-delay: 0.7s;"></div><div class="sparkle" style="top: 15%; left: 35%; animation-duration: 4s; animation-delay: 0.8s;"></div><div class="sparkle" style="top: 15%; left: 40%; animation-duration: 4s; animation-delay: 0.9s;"></div><div class="sparkle" style="top: 15%; left: 45%; animation-duration: 4s; animation-delay: 1s;"></div><div class="sparkle" style="top: 15%; left: 50%; animation-duration: 4s; animation-delay: 1.1s;"></div><div class="sparkle" style="top: 15%; left: 55%; animation-duration: 4s; animation-delay: 1.2s;"></div><div class="sparkle" style="top: 15%; left: 60%; animation-duration: 4s; animation-delay: 1.3s;"></div><div class="sparkle" style="top: 15%; left: 65%; animation-duration: 4s; animation-delay: 1.4s;"></div><div class="sparkle" style="top: 15%; left: 70%; animation-duration: 4s; animation-delay: 1.5s;"></div><div class="sparkle" style="top: 15%; left: 75%; animation-duration: 4s; animation-delay: 1.6s;"></div><div class="sparkle" style="top: 15%; left: 80%; animation-duration: 4s; animation-delay: 1.7s;"></div><div class="sparkle" style="top: 15%; left: 85%; animation-duration: 4s; animation-delay: 1.8s;"></div><div class="sparkle" style="top: 15%; left: 90%; animation-duration: 4s; animation-delay: 1.9s;"></div><div class="sparkle" style="top: 15%; left: 95%; animation-duration: 4s; animation-delay: 2s;"></div><div class="sparkle" style="top: 25%; left: 0%; animation-duration: 4s; animation-delay: 0.2s;"></div><div class="sparkle" style="top: 25%; left: 5%; animation-duration: 4s; animation-delay: 0.3s;"></div><div class="sparkle" style="top: 25%; left: 10%; animation-duration: 4s; animation-delay: 0.4s;"></div><div class="sparkle" style="top: 25%; left: 15%; animation-duration: 4s; animation-delay: 0.5s;"></div><div class="sparkle" style="top: 25%; left: 20%; animation-duration: 4s; animation-delay: 0.6s;"></div><div class="sparkle" style="top: 25%; left: 25%; animation-duration: 4s; animation-delay: 0.7s;"></div><div class="sparkle" style="top: 25%; left: 30%; animation-duration: 4s; animation-delay: 0.8s;"></div><div class="sparkle" style="top: 25%; left: 35%; animation-duration: 4s; animation-delay: 0.9s;"></div><div class="sparkle" style="top: 25%; left: 40%; animation-duration: 4s; animation-delay: 1s;"></div><div class="sparkle" style="top: 25%; left: 45%; animation-duration: 4s; animation-delay: 1.1s;"></div><div class="sparkle" style="top: 25%; left: 50%; animation-duration: 4s; animation-delay: 1.2s;"></div><div class="sparkle" style="top: 25%; left: 55%; animation-duration: 4s; animation-delay: 1.3s;"></div><div class="sparkle" style="top: 25%; left: 60%; animation-duration: 4s; animation-delay: 1.4s;"></div><div class="sparkle" style="top: 25%; left: 65%; animation-duration: 4s; animation-delay: 1.5s;"></div><div class="sparkle" style="top: 25%; left: 70%; animation-duration: 4s; animation-delay: 1.6s;"></div><div class="sparkle" style="top: 25%; left: 75%; animation-duration: 4s; animation-delay: 1.7s;"></div><div class="sparkle" style="top: 25%; left: 80%; animation-duration: 4s; animation-delay: 1.8s;"></div><div class="sparkle" style="top: 25%; left: 85%; animation-duration: 4s; animation-delay: 1.9s;"></div><div class="sparkle" style="top: 25%; left: 90%; animation-duration: 4s; animation-delay: 2s;"></div><div class="sparkle" style="top: 25%; left: 95%; animation-duration: 4s; animation-delay: 2.1s;"></div><div class="sparkle" style="top: 35%; left: 0%; animation-duration: 4s; animation-delay: 0.3s;"></div><div class="sparkle" style="top: 35%; left: 5%; animation-duration: 4s; animation-delay: 0.4s;"></div><div class="sparkle" style="top: 35%; left: 10%; animation-duration: 4s; animation-delay: 0.5s;"></div><div class="sparkle" style="top: 35%; left: 15%; animation-duration: 4s; animation-delay: 0.6s;"></div><div class="sparkle" style="top: 35%; left: 20%; animation-duration: 4s; animation-delay: 0.7s;"></div><div class="sparkle" style="top: 35%; left: 25%; animation-duration: 4s; animation-delay: 0.8s;"></div><div class="sparkle" style="top: 35%; left: 30%; animation-duration: 4s; animation-delay: 0.9s;"></div><div class="sparkle" style="top: 35%; left: 35%; animation-duration: 4s; animation-delay: 1s;"></div><div class="sparkle" style="top: 35%; left: 40%; animation-duration: 4s; animation-delay: 1.1s;"></div><div class="sparkle" style="top: 35%; left: 45%; animation-duration: 4s; animation-delay: 1.2s;"></div><div class="sparkle" style="top: 35%; left: 50%; animation-duration: 4s; animation-delay: 1.3s;"></div><div class="sparkle" style="top: 35%; left: 55%; animation-duration: 4s; animation-delay: 1.4s;"></div><div class="sparkle" style="top: 35%; left: 60%; animation-duration: 4s; animation-delay: 1.5s;"></div><div class="sparkle" style="top: 35%; left: 65%; animation-duration: 4s; animation-delay: 1.6s;"></div><div class="sparkle" style="top: 35%; left: 70%; animation-duration: 4s; animation-delay: 1.7s;"></div><div class="sparkle" style="top: 35%; left: 75%; animation-duration: 4s; animation-delay: 1.8s;"></div><div class="sparkle" style="top: 35%; left: 80%; animation-duration: 4s; animation-delay: 1.9s;"></div><div class="sparkle" style="top: 35%; left: 85%; animation-duration: 4s; animation-delay: 2s;"></div><div class="sparkle" style="top: 35%; left: 90%; animation-duration: 4s; animation-delay: 2.1s;"></div><div class="sparkle" style="top: 35%; left: 95%; animation-duration: 4s; animation-delay: 2.2s;"></div><div class="sparkle" style="top: 45%; left: 0%; animation-duration: 4s; animation-delay: 0.4s;"></div><div class="sparkle" style="top: 45%; left: 5%; animation-duration: 4s; animation-delay: 0.5s;"></div><div class="sparkle" style="top: 45%; left: 10%; animation-duration: 4s; animation-delay: 0.6s;"></div><div class="sparkle" style="top: 45%; left: 15%; animation-duration: 4s; animation-delay: 0.7s;"></div><div class="sparkle" style="top: 45%; left: 20%; animation-duration: 4s; animation-delay: 0.8s;"></div><div class="sparkle" style="top: 45%; left: 25%; animation-duration: 4s; animation-delay: 0.9s;"></div><div class="sparkle" style="top: 45%; left: 30%; animation-duration: 4s; animation-delay: 1s;"></div><div class="sparkle" style="top: 45%; left: 35%; animation-duration: 4s; animation-delay: 1.1s;"></div><div class="sparkle" style="top: 45%; left: 40%; animation-duration: 4s; animation-delay: 1.2s;"></div><div class="sparkle" style="top: 45%; left: 45%; animation-duration: 4s; animation-delay: 1.3s;"></div><div class="sparkle" style="top: 45%; left: 50%; animation-duration: 4s; animation-delay: 1.4s;"></div><div class="sparkle" style="top: 45%; left: 55%; animation-duration: 4s; animation-delay: 1.5s;"></div><div class="sparkle" style="top: 45%; left: 60%; animation-duration: 4s; animation-delay: 1.6s;"></div><div class="sparkle" style="top: 45%; left: 65%; animation-duration: 4s; animation-delay: 1.7s;"></div><div class="sparkle" style="top: 45%; left: 70%; animation-duration: 4s; animation-delay: 1.8s;"></div><div class="sparkle" style="top: 45%; left: 75%; animation-duration: 4s; animation-delay: 1.9s;"></div><div class="sparkle" style="top: 45%; left: 80%; animation-duration: 4s; animation-delay: 2s;"></div><div class="sparkle" style="top: 45%; left: 85%; animation-duration: 4s; animation-delay: 2.1s;"></div><div class="sparkle" style="top: 45%; left: 90%; animation-duration: 4s; animation-delay: 2.2s;"></div><div class="sparkle" style="top: 45%; left: 95%; animation-duration: 4s; animation-delay: 2.3s;"></div><div class="sparkle" style="top: 55%; left: 0%; animation-duration: 4s; animation-delay: 0.5s;"></div><div class="sparkle" style="top: 55%; left: 5%; animation-duration: 4s; animation-delay: 0.6s;"></div><div class="sparkle" style="top: 55%; left: 10%; animation-duration: 4s; animation-delay: 0.7s;"></div><div class="sparkle" style="top: 55%; left: 15%; animation-duration: 4s; animation-delay: 0.8s;"></div><div class="sparkle" style="top: 55%; left: 20%; animation-duration: 4s; animation-delay: 0.9s;"></div><div class="sparkle" style="top: 55%; left: 25%; animation-duration: 4s; animation-delay: 1s;"></div><div class="sparkle" style="top: 55%; left: 30%; animation-duration: 4s; animation-delay: 1.1s;"></div><div class="sparkle" style="top: 55%; left: 35%; animation-duration: 4s; animation-delay: 1.2s;"></div><div class="sparkle" style="top: 55%; left: 40%; animation-duration: 4s; animation-delay: 1.3s;"></div><div class="sparkle" style="top: 55%; left: 45%; animation-duration: 4s; animation-delay: 1.4s;"></div><div class="sparkle" style="top: 55%; left: 50%; animation-duration: 4s; animation-delay: 1.5s;"></div><div class="sparkle" style="top: 55%; left: 55%; animation-duration: 4s; animation-delay: 1.6s;"></div><div class="sparkle" style="top: 55%; left: 60%; animation-duration: 4s; animation-delay: 1.7s;"></div><div class="sparkle" style="top: 55%; left: 65%; animation-duration: 4s; animation-delay: 1.8s;"></div><div class="sparkle" style="top: 55%; left: 70%; animation-duration: 4s; animation-delay: 1.9s;"></div><div class="sparkle" style="top: 55%; left: 75%; animation-duration: 4s; animation-delay: 2s;"></div><div class="sparkle" style="top: 55%; left: 80%; animation-duration: 4s; animation-delay: 2.1s;"></div><div class="sparkle" style="top: 55%; left: 85%; animation-duration: 4s; animation-delay: 2.2s;"></div><div class="sparkle" style="top: 55%; left: 90%; animation-duration: 4s; animation-delay: 2.3s;"></div><div class="sparkle" style="top: 55%; left: 95%; animation-duration: 4s; animation-delay: 2.4s;"></div><div class="sparkle" style="top: 65%; left: 0%; animation-duration: 4s; animation-delay: 0.6s;"></div><div class="sparkle" style="top: 65%; left: 5%; animation-duration: 4s; animation-delay: 0.7s;"></div><div class="sparkle" style="top: 65%; left: 10%; animation-duration: 4s; animation-delay: 0.8s;"></div><div class="sparkle" style="top: 65%; left: 15%; animation-duration: 4s; animation-delay: 0.9s;"></div><div class="sparkle" style="top: 65%; left: 20%; animation-duration: 4s; animation-delay: 1s;"></div><div class="sparkle" style="top: 65%; left: 25%; animation-duration: 4s; animation-delay: 1.1s;"></div><div class="sparkle" style="top: 65%; left: 30%; animation-duration: 4s; animation-delay: 1.2s;"></div><div class="sparkle" style="top: 65%; left: 35%; animation-duration: 4s; animation-delay: 1.3s;"></div><div class="sparkle" style="top: 65%; left: 40%; animation-duration: 4s; animation-delay: 1.4s;"></div><div class="sparkle" style="top: 65%; left: 45%; animation-duration: 4s; animation-delay: 1.5s;"></div><div class="sparkle" style="top: 65%; left: 50%; animation-duration: 4s; animation-delay: 1.6s;"></div><div class="sparkle" style="top: 65%; left: 55%; animation-duration: 4s; animation-delay: 1.7s;"></div><div class="sparkle" style="top: 65%; left: 60%; animation-duration: 4s; animation-delay: 1.8s;"></div><div class="sparkle" style="top: 65%; left: 65%; animation-duration: 4s; animation-delay: 1.9s;"></div><div class="sparkle" style="top: 65%; left: 70%; animation-duration: 4s; animation-delay: 2s;"></div><div class="sparkle" style="top: 65%; left: 75%; animation-duration: 4s; animation-delay: 2.1s;"></div><div class="sparkle" style="top: 65%; left: 80%; animation-duration: 4s; animation-delay: 2.2s;"></div><div class="sparkle" style="top: 65%; left: 85%; animation-duration: 4s; animation-delay: 2.3s;"></div><div class="sparkle" style="top: 65%; left: 90%; animation-duration: 4s; animation-delay: 2.4s;"></div><div class="sparkle" style="top: 65%; left: 95%; animation-duration: 4s; animation-delay: 2.5s;"></div><div class="sparkle" style="top: 75%; left: 0%; animation-duration: 4s; animation-delay: 0.7s;"></div><div class="sparkle" style="top: 75%; left: 5%; animation-duration: 4s; animation-delay: 0.8s;"></div><div class="sparkle" style="top: 75%; left: 10%; animation-duration: 4s; animation-delay: 0.9s;"></div><div class="sparkle" style="top: 75%; left: 15%; animation-duration: 4s; animation-delay: 1s;"></div><div class="sparkle" style="top: 75%; left: 20%; animation-duration: 4s; animation-delay: 1.1s;"></div><div class="sparkle" style="top: 75%; left: 25%; animation-duration: 4s; animation-delay: 1.2s;"></div><div class="sparkle" style="top: 75%; left: 30%; animation-duration: 4s; animation-delay: 1.3s;"></div><div class="sparkle" style="top: 75%; left: 35%; animation-duration: 4s; animation-delay: 1.4s;"></div><div class="sparkle" style="top: 75%; left: 40%; animation-duration: 4s; animation-delay: 1.5s;"></div><div class="sparkle" style="top: 75%; left: 45%; animation-duration: 4s; animation-delay: 1.6s;"></div><div class="sparkle" style="top: 75%; left: 50%; animation-duration: 4s; animation-delay: 1.7s;"></div><div class="sparkle" style="top: 75%; left: 55%; animation-duration: 4s; animation-delay: 1.8s;"></div><div class="sparkle" style="top: 75%; left: 60%; animation-duration: 4s; animation-delay: 1.9s;"></div><div class="sparkle" style="top: 75%; left: 65%; animation-duration: 4s; animation-delay: 2s;"></div><div class="sparkle" style="top: 75%; left: 70%; animation-duration: 4s; animation-delay: 2.1s;"></div><div class="sparkle" style="top: 75%; left: 75%; animation-duration: 4s; animation-delay: 2.2s;"></div><div class="sparkle" style="top: 75%; left: 80%; animation-duration: 4s; animation-delay: 2.3s;"></div><div class="sparkle" style="top: 75%; left: 85%; animation-duration: 4s; animation-delay: 2.4s;"></div><div class="sparkle" style="top: 75%; left: 90%; animation-duration: 4s; animation-delay: 2.5s;"></div><div class="sparkle" style="top: 75%; left: 95%; animation-duration: 4s; animation-delay: 2.6s;"></div><div class="sparkle" style="top: 85%; left: 0%; animation-duration: 4s; animation-delay: 0.8s;"></div><div class="sparkle" style="top: 85%; left: 5%; animation-duration: 4s; animation-delay: 0.9s;"></div><div class="sparkle" style="top: 85%; left: 10%; animation-duration: 4s; animation-delay: 1s;"></div><div class="sparkle" style="top: 85%; left: 15%; animation-duration: 4s; animation-delay: 1.1s;"></div><div class="sparkle" style="top: 85%; left: 20%; animation-duration: 4s; animation-delay: 1.2s;"></div><div class="sparkle" style="top: 85%; left: 25%; animation-duration: 4s; animation-delay: 1.3s;"></div><div class="sparkle" style="top: 85%; left: 30%; animation-duration: 4s; animation-delay: 1.4s;"></div><div class="sparkle" style="top: 85%; left: 35%; animation-duration: 4s; animation-delay: 1.5s;"></div><div class="sparkle" style="top: 85%; left: 40%; animation-duration: 4s; animation-delay: 1.6s;"></div><div class="sparkle" style="top: 85%; left: 45%; animation-duration: 4s; animation-delay: 1.7s;"></div><div class="sparkle" style="top: 85%; left: 50%; animation-duration: 4s; animation-delay: 1.8s;"></div><div class="sparkle" style="top: 85%; left: 55%; animation-duration: 4s; animation-delay: 1.9s;"></div><div class="sparkle" style="top: 85%; left: 60%; animation-duration: 4s; animation-delay: 2s;"></div><div class="sparkle" style="top: 85%; left: 65%; animation-duration: 4s; animation-delay: 2.1s;"></div><div class="sparkle" style="top: 85%; left: 70%; animation-duration: 4s; animation-delay: 2.2s;"></div><div class="sparkle" style="top: 85%; left: 75%; animation-duration: 4s; animation-delay: 2.3s;"></div><div class="sparkle" style="top: 85%; left: 80%; animation-duration: 4s; animation-delay: 2.4s;"></div><div class="sparkle" style="top: 85%; left: 85%; animation-duration: 4s; animation-delay: 2.5s;"></div><div class="sparkle" style="top: 85%; left: 90%; animation-duration: 4s; animation-delay: 2.6s;"></div><div class="sparkle" style="top: 85%; left: 95%; animation-duration: 4s; animation-delay: 2.7s;"></div><div class="sparkle" style="top: 95%; left: 0%; animation-duration: 4s; animation-delay: 0.9s;"></div><div class="sparkle" style="top: 95%; left: 5%; animation-duration: 4s; animation-delay: 1s;"></div><div class="sparkle" style="top: 95%; left: 10%; animation-duration: 4s; animation-delay: 1.1s;"></div><div class="sparkle" style="top: 95%; left: 15%; animation-duration: 4s; animation-delay: 1.2s;"></div><div class="sparkle" style="top: 95%; left: 20%; animation-duration: 4s; animation-delay: 1.3s;"></div><div class="sparkle" style="top: 95%; left: 25%; animation-duration: 4s; animation-delay: 1.4s;"></div><div class="sparkle" style="top: 95%; left: 30%; animation-duration: 4s; animation-delay: 1.5s;"></div><div class="sparkle" style="top: 95%; left: 35%; animation-duration: 4s; animation-delay: 1.6s;"></div><div class="sparkle" style="top: 95%; left: 40%; animation-duration: 4s; animation-delay: 1.7s;"></div><div class="sparkle" style="top: 95%; left: 45%; animation-duration: 4s; animation-delay: 1.8s;"></div><div class="sparkle" style="top: 95%; left: 50%; animation-duration: 4s; animation-delay: 1.9s;"></div><div class="sparkle" style="top: 95%; left: 55%; animation-duration: 4s; animation-delay: 2s;"></div><div class="sparkle" style="top: 95%; left: 60%; animation-duration: 4s; animation-delay: 2.1s;"></div><div class="sparkle" style="top: 95%; left: 65%; animation-duration: 4s; animation-delay: 2.2s;"></div><div class="sparkle" style="top: 95%; left: 70%; animation-duration: 4s; animation-delay: 2.3s;"></div><div class="sparkle" style="top: 95%; left: 75%; animation-duration: 4s; animation-delay: 2.4s;"></div><div class="sparkle" style="top: 95%; left: 80%; animation-duration: 4s; animation-delay: 2.5s;"></div><div class="sparkle" style="top: 95%; left: 85%; animation-duration: 4s; animation-delay: 2.6s;"></div><div class="sparkle" style="top: 95%; left: 90%; animation-duration: 4s; animation-delay: 2.7s;"></div><div class="sparkle" style="top: 95%; left: 95%; animation-duration: 4s; animation-delay: 2.8s;"></div></div>
+	  <div class="button-wrapper">
+	  	<button class="button" id="remove-image"><i class="fas fa-times"></i></button>
+      <button class="button" id="draw-mask"><i class="fas fa-pencil"></i></button>
+      <button class="button" id="magic-tool"><i class="fas fa-wand-magic-sparkles"></i></button>
+      <button class="button" id="draw-rect"><i class="fas fa-shapes"></i></button>
+      <button class="button" id="seg-everything"><i class="fas fa-fill-drip"></i></button>
+      <button class="button" id="undo-path"><i class="fas fa-undo"></i></button>
+      <button class="button" id="eraser"><i class="fa-solid fa-eraser"></i></button>
+      <button class="button" id="save-images"><i class="fas fa-download"></i></button>
+      <button class="button" id="seg-video"><i class="fa-solid fa-film"></i></button>
+	  </div>
+	  <div id="slider-wrapper" style="display: none;">
+		  <input type="range" min="1" max="100" value="50" class="slider" id="brush-size">
+	  </div>
+	  <div id="file-input-wrapper">
+	  	<input type="file" id="file-input">
+	  </div>
+	</div>
+
+  <div id="spinner-container" class="position-fixed top-50 start-50 translate-middle d-none">
+      <div class="spinner-border text-primary" role="status"></div>
+      <span style="color: #dc3545; font-size: 2em;">Preprocessing image...</span>
+  </div>
+
+
+
+
+	<script type="text/javascript">
+
+    document.addEventListener('contextmenu', function(event) {
+        event.preventDefault(); // Prevent the default context menu from appearing (right-click menu in browsers)
+    });
+
+    async function canvasToBlob(canvas) {
+      return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+          if (blob) {
+              resolve(blob);
+          } else {
+              reject(new Error("Canvas to Blob conversion failed"));
+          }
+        });
+      });
+    }
+
+    async function blobToByteArray(blob) {
+      return new Uint8Array(await new Response(blob).arrayBuffer());
+    }
+
+    function randomRGBColor() {
+      const red = Math.floor(Math.random() * 256);
+      const green = Math.floor(Math.random() * 256);
+      const blue = Math.floor(Math.random() * 256);
+      return { r: red, g: green, b: blue};
+    }
+    
+    // Magic tool functionality
+    const tolerance = 30;
+    const replacementColor = { r: 147, g: 112, b: 219 };
+    const alpha_255 = 191.25;
+    const alpha_1 = 1; // for manual drawer (avoid color overlay artifact when = 0.75)
+    
+    const random_color = {};
+    for (let i = 1; i <= 255; i++) {
+      random_color[i] = randomRGBColor();
+    }
+
+    // canvas image xy to original image xy
+    function getXYLocationInOriImage(x, y) {
+      x -= scaledX;
+      y -= scaledY;
+
+      x /= scaleFactor;
+      y /= scaleFactor;
+
+      x = Math.round(x);
+      y = Math.round(y);
+
+      return { x, y };
+    }
+
+    // canvas idx to original image idx
+    function getIdxLocationInOriImage(idx) {
+      let x = idx % 500;
+      let y = Math.floor(idx / 500);
+
+      x -= scaledX;
+      y -= scaledY;
+
+      x /= scaleFactor;
+      y /= scaleFactor;
+
+      x = Math.round(x);
+      y = Math.round(y);
+
+      return y * originalUnresizedImageData.width + x;
+    }
+
+    // scaled image idx to original image idx
+    function imgidx2oriidx(idx) {
+      let { x, y } = idx2xy(idx);
+      x /= scaleFactor;
+      y /= scaleFactor;
+      x = Math.round(x);
+      y = Math.round(y);
+      return y * originalUnresizedImageData.width + x;
+    }
+
+    // event location is on canvas, which is different from the original image size
+    function getEventLocationInOriImage(event) {
+      let x = event.offsetX;
+      let y = event.offsetY;
+
+      return getXYLocationInOriImage(x, y);
+    }
+
+    // // scaled image xy to scaled image idx
+    // function xy2idx(x, y) {
+    //   return y * scaledWidth + x;
+    // }
+
+    // // scaled image idx to scaled image xy
+    // function idx2xy(idx) {
+    //   let x = idx % scaledWidth;
+    //   let y = Math.floor(idx / scaledWidth);
+
+    //   return { x, y };
+    // }
+
+
+    // only seg_everything, rect, and magic tool need to use this function
+    function getImagedataFromImageClass(Image, masktype) {
+      // Create a original size element and draw the image onto it
+      let tmpcanvas = document.createElement('canvas');
+      tmpcanvas.width = originalUnresizedImageData.width;
+      tmpcanvas.height = originalUnresizedImageData.height;
+      let tmpcontext = tmpcanvas.getContext('2d');
+
+      tmpcontext.drawImage(Image, 0, 0);
+
+      // Get the image data from the canvas
+      let imageData = tmpcontext.getImageData(0, 0, tmpcanvas.width, tmpcanvas.height);
+      let pixelData = imageData.data;
+
+      const imageMask = maskcontext.getImageData(0, 0, maskcanvas.width, maskcanvas.height);
+      const data = imageMask.data;
+
+      if (masktype == 'everything') {
+        // Get the pixel indices of the mask
+        for (let i = 0; i < pixelData.length; i += 4) {
+          if (pixelData[i] > 0) {
+            data[i] = random_color[pixelData[i]].r; // red
+            data[i + 1] = random_color[pixelData[i]].g; // green
+            data[i + 2] = random_color[pixelData[i]].b; // blue
+            data[i + 3] = alpha_255; // alpha
+          }
+        }
+        maskcontext.putImageData(imageMask, 0, 0);
+
+        oriDrawnPaths.push({
+          masks: pixelData,
+          type: "everything",
+        });
+      } 
+      else if (masktype == "rect") {
+        let pixels = [];
+        // Get the pixel indices of the mask
+        for (let i = 0; i < pixelData.length; i += 4) {
+          if (pixelData[i] == 255 && pixelData[i + 1] == 255 && pixelData[i + 2] == 255) {
+            pixels.push(i);
+          }
+        }
+
+        for (let i = 0; i < pixels.length; i += 1) {
+          data[pixels[i]] = replacementColor.r; // red
+          data[pixels[i] + 1] = replacementColor.g; // green
+          data[pixels[i] + 2] = replacementColor.b; // blue
+          data[pixels[i] + 3] = alpha_255; // alpha
+        }
+        maskcontext.putImageData(imageMask, 0, 0);
+
+        oriDrawnPaths.push({
+          points: pixels,
+          type: "rect",
+        });
+      } 
+      else if (masktype == "magic") {
+        let pixels = [];
+        // Get the pixel indices of the mask
+        for (let i = 0; i < pixelData.length; i += 4) {
+          if (pixelData[i] == 255 && pixelData[i + 1] == 255 && pixelData[i + 2] == 255) {
+            pixels.push(i);
+          }
+        }
+
+        // we don't add anything to the oriDrawnPaths while interactive mode
+        oriInteractivePaths.push(pixels);
+      }
+      else {
+        // do nothing
+      }
+
+      // Create a canvas size element and draw the image onto it
+      tmpcanvas = document.createElement('canvas');
+      tmpcanvas.width = canvas.width;
+      tmpcanvas.height = canvas.height;
+      tmpcontext = tmpcanvas.getContext('2d');
+
+      tmpcontext.drawImage(Image, scaledX, scaledY, scaledWidth, scaledHeight);
+
+      // Get the image data from the canvas
+      imageData = tmpcontext.getImageData(0, 0, tmpcanvas.width, tmpcanvas.height);
+      pixelData = imageData.data;
+
+      return imageData.data;
+    }
+
+    function magicToolHandler(event) {
+      if (!isMagicToolActive) return;
+      console.log("magic tool handler")
+
+      // step 1: get starting point
+      const { x, y } = getEventLocationInOriImage(event);
+      promptPoints.push({
+          type: (event.which == 1) ? true : false,
+          origPoint: [event.offsetX, event.offsetY],
+          scaledPoint: [x, y],
+      });
+
+      // step 2: get image data for flood fill
+      const imageWidth = imageCanvas.width;
+      const imageHeight = imageCanvas.height;
+      const imageData = imageContext.getImageData(0, 0, imageWidth, imageHeight);
+      const pixelData = imageData.data;
+
+      const formData = new FormData();
+      const typeList = [];
+      const clickList = [];
+
+      for (const thisPrompt of promptPoints) {
+          typeList.push(thisPrompt.type ? 1 : 0);
+          clickList.push(thisPrompt.scaledPoint[0]);
+          clickList.push(thisPrompt.scaledPoint[1]);
+      }
+      formData.append("type", typeList);
+      formData.append("click_list", clickList);
+      
+      // Send a POST request to the server API
+      fetch("/click", {
+          method: "POST",
+          body: formData,
+      })
+      .then((response) => response.json())
+      .then((data) => {
+
+          let pixels = [];
+
+          // Get the base64-encoded image strings from the JSON response
+          const maskBase64 = data.masks;
+          const maskImage = new Image();
+          maskImage.src = `data:image/png;base64,${maskBase64}`;
+          maskImage.onload = function() {
+            const pixelData = getImagedataFromImageClass(maskImage, "magic");
+
+            console.log(pixelData.length)
+            // Get the pixel indices of the mask
+            for (let i = 0; i < pixelData.length; i += 4) {
+              if (pixelData[i] == 255 && pixelData[i + 1] == 255 && pixelData[i + 2] == 255) {
+                pixels.push(i);
+              }
+            }
+            console.log(pixels.length)
+
+            // step 4: put magic mask on canvas
+            redrawPaths(canvas, drawnPaths);
+            putDataOnCanvas(canvas, pixels);
+
+            for (const thisPrompt of promptPoints) {
+                drawPromptPointOnClick(thisPrompt, canvas);
+            }
+
+            // step 5: Add the magic mask to drawnPaths array
+            interactivePaths.push(pixels);
+          };
+      })
+      .catch((error) => {
+          console.error("Error:", error);
+      }).finally(() => {
+          // // Hide the spinner
+          // spinnerContainer.classList.add("d-none");
+      });
+    }
+
+    function drawPromptPointOnClick(thisPrompt, canvas) {
+      let x = thisPrompt.origPoint[0];
+      let y = thisPrompt.origPoint[1];
+
+      const fillColor = `rgba(255, 255, 255, 0.75)`;
+      const strokeColor = thisPrompt.type ? `green` : `red`;
+
+      const context = canvas.getContext("2d");
+
+      context.beginPath();
+      context.arc(x, y, 3, 0, Math.PI * 2);
+      context.fillStyle = fillColor;
+      context.fill();
+      context.strokeStyle = strokeColor;
+      context.stroke();
+    }
+
+    function putDataOnCanvas(thisCanvas, pixels) {
+      const thisContext = thisCanvas.getContext("2d");
+      const canvasData = thisContext.getImageData(
+          0,
+          0,
+          thisCanvas.width,
+          thisCanvas.height
+      );
+      const data = canvasData.data;
+
+      for (let i = 0; i < pixels.length; i += 1) {
+          data[pixels[i]] = replacementColor.r; // red
+          data[pixels[i] + 1] = replacementColor.g; // green
+          data[pixels[i] + 2] = replacementColor.b; // blue
+          data[pixels[i] + 3] = alpha_255; // alpha
+      }
+      thisContext.putImageData(canvasData, 0, 0);
+    }
+
+	const fileInput = document.getElementById('file-input');
+    let zipfileBase64 = null;
+    let imageName = "original_image";
+    let videoName = "original_video";
+    // for drawer
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+    // for image
+    const imageCanvas = document.getElementById('image-canvas');
+    const imageContext = imageCanvas.getContext('2d');
+    imageCanvas.style.zIndex = -1;
+    // for rect real-time visualization
+    const tempCanvas = document.getElementById('temp-canvas');
+    const tempContext = tempCanvas.getContext('2d');
+    tempCanvas.style.zIndex = 1;
+    // for image-size mask canvas
+    const maskcanvas = document.createElement('canvas');
+    const maskcontext = maskcanvas.getContext('2d');
+
+    canvas.width = 500;
+    canvas.height = 500;
+    imageCanvas.width = 500;
+    imageCanvas.height = 500;
+    tempCanvas.width = 500;
+    tempCanvas.height = 500;
+    // for saving mask purpose
+    let scaledWidth = -1;
+    let scaledHeight = -1;
+    let scaledX = -1;
+    let scaledY = -1;
+    // global variables for image
+    let scaleFactor = -1;
+
+    let originalUnresizedImageData;
+    let originalUnresizedMaskData;
+
+    // Prompt points in magic tool
+    const promptPoints = [];
+    const interactivePaths = [];
+    const oriInteractivePaths = [];
+
+    // Add a new array to store drawn paths
+    const drawnPaths = [];
+    const oriDrawnPaths = [];
+    // for magic tool
+    let isMagicToolActive = false;
+    // for draw rect
+    let isDrawingRect = false;
+    let rectStartX = 0;
+    let rectStartY = 0;
+    // for eraser
+    let isErasing = false;
+    // for draw mask, keep track of whether user is currently drawing
+    let isDrawing = false;
+    let isDown = false;
+    let lastX, lastY; // keep track of last position of the pointer
+
+    const slider = document.getElementById("brush-size");
+    let brushSize = slider.value;
+
+    const removeImageButton = document.getElementById('remove-image');
+    const drawMaskButton = document.getElementById('draw-mask');
+    const magicToolButton = document.getElementById('magic-tool');
+    const fileInputWrapper = document.getElementById('file-input-wrapper');
+    const drawRectButton = document.getElementById('draw-rect');
+
+    function stopDrawing() {
+      canvas.style.cursor = "auto";
+      // stop drawing
+      isDrawing = false;
+      sliderWrapper.style.display = 'none';
+    }
+    function stopMagicDrawing() {
+      canvas.style.cursor = "auto";
+      // stop magic drawing
+      try {
+        canvas.removeEventListener("mousedown", magicToolHandler);
+        console.log('remove magic tool handler')
+      } catch (error) {
+        console.log(error) // do nothing
+      }
+      isMagicToolActive = false;
+
+      if (interactivePaths.length != 0) {
+          const mask_idx = interactivePaths.length - 1;
+          const lastPath = interactivePaths.pop();
+          const oriLastPath = oriInteractivePaths.pop();
+          promptPoints.splice(0);
+          interactivePaths.splice(0);
+          oriInteractivePaths.splice(0);
+
+          // draw on scaled-size canvas
+          drawnPaths.push({
+              points: lastPath,
+              type: "magic",
+          });
+          redrawPaths(canvas, drawnPaths);
+          // draw on original-size canvas
+          oriDrawnPaths.push({
+              points: oriLastPath,
+              type: "magic",
+          });
+          redrawPaths(maskcanvas, oriDrawnPaths);
+
+          const formData = new FormData();
+          formData.append("mask_idx", mask_idx);
+          fetch("/finish_click", {
+              method: "POST",
+              body: formData,
+          })
+              .then((response) => response.json())
+              .then((data) => {
+                  console.log("Success:", data);
+              })
+              .catch((error) => {
+                  console.error("Error:", error);
+              })
+              .finally(() => {
+                  // // Hide the spinner
+                  // spinnerContainer.classList.add("d-none");
+              });
+      }
+    }
+    function stopErasing() {
+      canvas.style.cursor = "auto";
+      // stop erasing
+      isErasing = false;
+    }
+
+    function stopRecting() {
+      canvas.style.cursor = "auto";
+      // stop draw recting
+      isDrawingRect = false;
+    }
+
+    function hideFileInput() {
+      fileInputWrapper.style.display = 'none';
+    }
+
+    function showFileInput() {
+      fileInputWrapper.style.display = 'block';
+    }
+
+
+    // Add event listener for the draw-rect button
+    drawRectButton.addEventListener('click', () => {
+      // stop any other drawing
+      stopDrawing();
+      stopMagicDrawing();
+      stopErasing();
+      // stop drawing
+      if (isDrawingRect) {
+        canvas.style.cursor = 'auto';
+        isDrawingRect = false;
+      }
+      // start drawing
+      else {
+        canvas.style.cursor = `crosshair`; // change cursor to a crosshair
+        isDrawingRect = true; 
+      }
+    });
+
+
+    // for processing video
+    async function getFirstFrameAsBlob(file) {
+        return new Promise((resolve, reject) => {
+          videoName = file.name.split('.')[0];
+          console.log(videoName)
+
+          const video = document.createElement('video');
+          video.preload = 'auto'; // Preload video
+          video.src = URL.createObjectURL(file);
+
+          // Trigger seeked event after metadata loaded
+          video.addEventListener('loadedmetadata', function() {
+              this.currentTime = 0;
+          }, false);
+
+          // Extract first frame when seek operation completes
+          video.addEventListener('seeked', function() {
+              const canvas = document.createElement('canvas');
+              const context = canvas.getContext('2d');
+              canvas.width = video.videoWidth;
+              canvas.height = video.videoHeight;
+
+              // Draw the first frame of the video onto the canvas
+              context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+
+              // Convert the canvas to a blob
+              canvas.toBlob(blob => {
+                  // Convert blob to file
+                  const file = new File([blob], 'frame.png', { type: 'image/png' });
+                  resolve(file);
+              });
+
+              // Remove the video element after capturing the frame
+              video.remove();
+          }, false);
+
+          // When video can be played through, upload to server
+          video.addEventListener('canplaythrough', function() {
+              const spinnerContainer = document.getElementById("spinner-container");
+              const spinnerText = spinnerContainer.querySelector('span');
+              // Change the spinner text
+              spinnerText.textContent = "Uploading video...";
+              // Show the spinner
+              spinnerContainer.classList.remove("d-none");
+
+              // Create new FormData instance and append the video file
+              const formData = new FormData();
+              formData.append("video", file);
+
+              // Upload the video file to the server
+              fetch("/video", {
+                  method: "POST",
+                  body: formData,
+              })
+              .then((response) => response.json())
+              .then((data) => {
+                  console.log("Success:", data);
+              })
+              .catch((error) => {
+                  console.error("Error:", error);
+              })
+              .finally(() => {
+                  // Hide the spinner
+                  spinnerContainer.classList.add("d-none");
+                  console.log('finally')
+              });
+          }, false);
+        });
+    }
+
+    // for processing image
+    function handleImage(file, is_video) {
+        // Extract and store the uploaded image name
+        imageName = file.name.split('.')[0];
+        console.log(imageName)
+
+        const image = new Image();
+        image.onload = async () => {
+          const spinnerContainer = document.getElementById("spinner-container");
+          if (!is_video) {
+            const spinnerText = spinnerContainer.querySelector('span');
+            // Change the spinner text
+            spinnerText.textContent = "Preprocessing image...";
+            // Show the spinner
+            spinnerContainer.classList.remove("d-none");
+          }
+          
+          // for keeping original sized image
+          const tmp_canvas = document.createElement('canvas');
+          tmp_canvas.width = image.width;
+          tmp_canvas.height = image.height;
+          const ctx = tmp_canvas.getContext('2d');
+          // for keeping original sized mask
+          maskcanvas.width = image.width;
+          maskcanvas.height = image.height;
+
+          ctx.drawImage(image, 0, 0, image.width, image.height);
+          originalUnresizedImageData = ctx.getImageData(0, 0, image.width, image.height);
+
+          scaleFactor = Math.min(imageCanvas.width / image.width, imageCanvas.height / image.height);
+
+          scaledWidth = image.width * scaleFactor;
+          scaledHeight = image.height * scaleFactor;
+
+          scaledX = (imageCanvas.width - scaledWidth) / 2;
+          scaledY = (imageCanvas.height - scaledHeight) / 2;
+
+          // reset width and height can refresh the canvas so that prev image will not be kept
+          imageCanvas.width = 500;
+          imageCanvas.height = 500;
+          imageContext.drawImage(image, scaledX, scaledY, scaledWidth, scaledHeight);
+
+          hideFileInput();
+
+          if (is_video) {
+              return;
+          }
+          const imageBlob = await canvasToBlob(tmp_canvas);
+          const imageByteArray = await blobToByteArray(imageBlob);
+
+          const formData = new FormData();
+          formData.append("image", new Blob([imageByteArray]), "image.png");
+          fetch("/image", {
+              method: "POST",
+              body: formData,
+          })
+          .then((response) => response.json())
+          .then((data) => {
+              console.log("Success:", data);
+          })
+          .catch((error) => {
+              console.error("Error:", error);
+          }).finally(() => {
+            // Hide the spinner
+            spinnerContainer.classList.add("d-none");
+            console.log('finally')
+          });
+        };
+        image.src = URL.createObjectURL(file);
+    }
+
+		fileInput.addEventListener('change', async (event) => {
+		  const file = event.target.files[0];
+      const fileType = file.type;
+      zipfileBase64 = null;
+
+      const validVideoTypes = ['video/mp4', 'video/quicktime'];
+      if (validVideoTypes.includes(fileType)) {
+          console.log("a video file")
+          const firstFrameBlob = await getFirstFrameAsBlob(file);
+          console.log(firstFrameBlob);
+          handleImage(firstFrameBlob, 1);
+      } else {
+          console.log(file);
+          handleImage(file, 0);
+      }
+		});
+
+		removeImageButton.addEventListener('click', () => {
+			imageContext.clearRect(0, 0, imageCanvas.width, imageCanvas.height); // clear the image canvas
+      context.clearRect(0, 0, canvas.width, canvas.height); // clear the drawer canvas
+      stopDrawing();
+      stopErasing();
+      stopMagicDrawing();
+      stopRecting();
+      
+      while (drawnPaths.length > 0) {
+        drawnPaths.pop();
+      }
+      while (oriDrawnPaths.length > 0) {
+        oriDrawnPaths.pop();
+      }
+			showFileInput();
+      // Reset the file input value, force the browser to treat the re-uploaded file as a new file
+      fileInput.value = '';
+		});
+
+    slider.addEventListener("input", () => {
+      brushSize = slider.value;
+    });
+
+    const sliderWrapper = document.getElementById('slider-wrapper');
+    sliderWrapper.style.display = 'none';
+
+		drawMaskButton.addEventListener('click', (event) => {
+      stopMagicDrawing();
+      stopErasing();
+      stopRecting();
+      // toggle slider visibility
+      sliderWrapper.style.display = (sliderWrapper.style.display == 'none') ? 'block' : 'none';
+      // stop drawing
+      if (isDrawing) {
+        canvas.style.cursor = 'auto';
+        isDrawing = false;
+      }
+      // start drawing
+      else {
+        canvas.style.cursor = `crosshair`; // change cursor to a crosshair
+        isDrawing = true; 
+      }
+    });
+
+		canvas.addEventListener('mousedown', (event) => {
+      if (isDrawing || isErasing) {
+        lastX = event.offsetX;
+        lastY = event.offsetY;
+        isDown = true;
+
+        // Start a new path
+        drawnPaths.push({
+          type: isErasing ? 'eraser' : 'brush',
+          points: [],
+          lineWidth: brushSize,
+        });
+        oriDrawnPaths.push({
+          type: isErasing ? 'eraser' : 'brush',
+          points: [],
+          lineWidth: brushSize / scaleFactor,
+        });
+      } else if (isDrawingRect) {
+        rectStartX = event.offsetX;
+        rectStartY = event.offsetY;
+        isDown = true;
+      }
+		});
+
+    canvas.addEventListener('mouseup', () => {
+      if (isDrawingRect && isDown) {
+        // Clear the temporary canvas
+        tempContext.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+        // context.beginPath();
+        // context.rect(rectStartX, rectStartY, rectEndX - rectStartX, rectEndY - rectStartY);
+        // context.strokeStyle = 'rgba(147, 112, 219, 1)';
+        // context.lineWidth = 2;
+        // context.stroke();
+
+        // get start and end points of the rect
+        const {x: startX, y: startY} = getXYLocationInOriImage(rectStartX, rectStartY);
+        const {x: endX, y: endY} = getXYLocationInOriImage(event.offsetX, event.offsetY);
+        console.log(rectStartX, rectStartY, event.offsetX, event.offsetY);
+        console.log(startX, startY, endX, endY);
+        const formData = new FormData();
+        formData.append("start_x", startX);
+        formData.append("start_y", startY);
+        formData.append("end_x", endX);
+        formData.append("end_y", endY);
+        // Send a POST request to the server API
+        fetch("/rect", {
+            method: "POST",
+            body: formData,
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            // console.log("Success:", data.masks);
+            let pixels = [];
+
+            // Get the base64-encoded image strings from the JSON response
+            const maskBase64 = data.masks;
+            const maskImage = new Image();
+            maskImage.src = `data:image/png;base64,${maskBase64}`;
+            maskImage.onload = function() {
+              const pixelData = getImagedataFromImageClass(maskImage, "rect");
+
+              // console.log(pixelData.length)
+              // let uniquePixelData = [...new Set(pixelData)];
+              // console.log(uniquePixelData);
+
+              // Get the pixel indices of the mask
+              for (let i = 0; i < pixelData.length; i += 4) {
+                if (pixelData[i] == 255 && pixelData[i + 1] == 255 && pixelData[i + 2] == 255) {
+                  pixels.push(i);
+                }
+              }
+              console.log(pixels.length)
+              // step 4: put magic mask on canvas
+              const canvasData = context.getImageData(0, 0, canvas.width, canvas.height);
+              const data = canvasData.data;
+              console.log(data.length)
+              for (let i = 0; i < pixels.length; i += 1) {
+                data[pixels[i]] = replacementColor.r; // red
+                data[pixels[i] + 1] = replacementColor.g; // green
+                data[pixels[i] + 2] = replacementColor.b; // blue
+                data[pixels[i] + 3] = alpha_255; // alpha
+              }
+              context.putImageData(canvasData, 0, 0);
+
+              // step 5: Add the rect mask to drawnPaths array
+              drawnPaths.push({
+                points: pixels,
+                type: "rect",
+              });
+            };
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+        }).finally(() => {
+            // // Hide the spinner
+            // spinnerContainer.classList.add("d-none");
+        });
+      }
+      isDown = false;
+    });
+
+		canvas.addEventListener('mousemove', (event) => {
+      if ((isDrawing || isErasing) && isDown) {
+        const x = event.offsetX;
+        const y = event.offsetY;
+
+        // Check if the x and y coordinates are within the image boundaries
+        if (x >= scaledX && x < scaledX+scaledWidth && y >= scaledY && y < scaledY+scaledHeight &&
+            lastX >= scaledX && lastX < scaledX+scaledWidth && lastY >= scaledY && lastY < scaledY+scaledHeight) {
+          context.beginPath();
+          context.moveTo(lastX, lastY);
+          context.lineTo(x, y);
+          if (isErasing) {
+            context.globalCompositeOperation = 'destination-out';
+          } else {
+            context.globalCompositeOperation = 'source-over';
+          }
+          context.strokeStyle = `rgba(147, 112, 219, ${alpha_1})`;
+          context.lineWidth = brushSize;
+          context.stroke();
+          context.beginPath();
+          context.arc(x, y, brushSize / 2, 0, 2 * Math.PI);
+          context.fillStyle = `rgba(147, 112, 219, ${alpha_1})`;
+          context.fill();
+
+          // Add the point to the current path
+          const currentPath = drawnPaths[drawnPaths.length - 1];
+          currentPath.points.push({ fromX: lastX, fromY: lastY, toX: x, toY: y });
+          const oriCurrentPath = oriDrawnPaths[oriDrawnPaths.length - 1];
+          const {x: orilastX, y: orilastY} = getXYLocationInOriImage(lastX, lastY);
+          const {x: orix, y: oriy} = getXYLocationInOriImage(x, y);
+          oriCurrentPath.points.push({ fromX: orilastX, fromY: orilastY, toX: orix, toY: oriy });
+
+          maskcontext.beginPath();
+          maskcontext.moveTo(orilastX, orilastY);
+          maskcontext.lineTo(orix, oriy);
+          if (isErasing) {
+            maskcontext.globalCompositeOperation = 'destination-out';
+          } else {
+            maskcontext.globalCompositeOperation = 'source-over';
+          }
+          maskcontext.strokeStyle = `rgba(147, 112, 219, ${alpha_1})`;
+          maskcontext.lineWidth = brushSize / scaleFactor;
+          maskcontext.stroke();
+          maskcontext.beginPath();
+          maskcontext.arc(orix, oriy, brushSize / scaleFactor / 2, 0, 2 * Math.PI);
+          maskcontext.fillStyle = `rgba(147, 112, 219, ${alpha_1})`;
+          maskcontext.fill();
+        }
+        
+        lastX = x;
+        lastY = y;
+      } else if (isDrawingRect && isDown) {
+        const x = event.offsetX;
+        const y = event.offsetY;
+
+        // Clear the temporary canvas
+        tempContext.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+        // Draw the rectangle on the temporary canvas
+        tempContext.beginPath();
+        tempContext.rect(rectStartX, rectStartY, x - rectStartX, y - rectStartY);
+        tempContext.strokeStyle = `rgba(147, 112, 219, ${alpha_1})`;
+        tempContext.lineWidth = 2;
+        tempContext.stroke();
+      }
+    });
+
+    const undoPathButton = document.getElementById('undo-path');
+
+    undoPathButton.addEventListener('click', () => {
+      if (promptPoints.length > 0) {
+          const lastPoint = promptPoints.pop();
+          const lastPath = interactivePaths.pop();
+          oriInteractivePaths.pop();
+
+          redrawPaths(canvas, drawnPaths);
+
+          const curLen = interactivePaths.length;
+          if (curLen > 0) {
+              putDataOnCanvas(canvas, interactivePaths[curLen - 1]);
+          }
+
+          for (const thisPrompt of promptPoints) {
+              drawPromptPointOnClick(thisPrompt, canvas);
+          }
+
+      }
+      else if (drawnPaths.length > 0) {
+        // Remove the last path from the array
+        const lastPath = drawnPaths.pop();
+        oriDrawnPaths.pop();
+        console.log(lastPath)
+
+        if (lastPath.type === 'magic') {
+          fetch("/undo", {
+              method: "POST",
+          })
+          .then((response) => response.json())
+          .then((data) => {
+              console.log("Success:", data);
+          })
+          .catch((error) => {
+              console.error("Error:", error);
+          }).finally(() => {
+              // // Hide the spinner
+              // spinnerContainer.classList.add("d-none");
+          });
+        } 
+
+        // Clear the canvas
+        redrawPaths(canvas, drawnPaths);
+
+        // clear the ori-size mask canvas
+        redrawPaths(maskcanvas, oriDrawnPaths);
+      }
+      else {
+      }
+    });
+
+    function redrawPaths(thisCanvas, thisDrawnPaths) {
+        // Clear the thisCanvas
+        const thisContext = thisCanvas.getContext("2d");
+        thisContext.clearRect(0, 0, thisCanvas.width, thisCanvas.height);
+
+        // Redraw the remaining paths
+        for (const path of thisDrawnPaths) {
+          if (path.type === "magic" || path.type === "rect") {
+            putDataOnCanvas(thisCanvas, path.points);
+          }
+          else if (path.type === "everything") {
+            console.log("everything")
+            const canvasData = thisContext.getImageData(0, 0, thisCanvas.width, thisCanvas.height);
+            const data = canvasData.data;
+
+            for (let i = 0; i < path.masks.length; i += 4) {
+              if (path.masks[i] > 0) {
+                data[i] = random_color[path.masks[i]].r; // red
+                data[i + 1] = random_color[path.masks[i]].g; // green
+                data[i + 2] = random_color[path.masks[i]].b; // blue
+                data[i + 3] = alpha_255; // alpha
+              }
+            }
+            thisContext.putImageData(canvasData, 0, 0);
+          }
+          else {
+            thisContext.lineWidth = path.lineWidth;
+            for (const point of path.points) {
+              thisContext.beginPath();
+              thisContext.moveTo(point.fromX, point.fromY);
+              thisContext.lineTo(point.toX, point.toY);
+              if (path.type === "eraser") {
+                thisContext.globalCompositeOperation = 'destination-out';
+              } else {
+                thisContext.globalCompositeOperation = 'source-over';
+              }
+              thisContext.strokeStyle = `rgba(147, 112, 219, ${alpha_1})`;
+              thisContext.stroke();
+              thisContext.beginPath();
+              thisContext.arc(point.toX, point.toY, path.lineWidth / 2, 0, 2 * Math.PI);
+              thisContext.fillStyle = `rgba(147, 112, 219, ${alpha_1})`;
+              thisContext.fill();
+            }
+          }
+        }
+    }
+
+    // magic tool ----------------------------------------------------------------
+    // function getPixelIndex(x, y, width) {
+    //   return (y * width + x) * 4;
+    // }
+
+    // function getColorDifference(color1, color2) {
+    //   return Math.abs(color1.r - color2.r) + Math.abs(color1.g - color2.g) + Math.abs(color1.b - color2.b);
+    // }
+
+    magicToolButton.addEventListener("click", (event) => {
+      stopDrawing();
+      stopErasing();
+      stopRecting();
+
+      if (!isMagicToolActive) {
+        canvas.style.cursor = "crosshair";
+        canvas.addEventListener("mousedown", magicToolHandler);
+        isMagicToolActive = true;
+      } else {
+        stopMagicDrawing();
+      }
+    });
+
+    // save images ----------------------------------------------------------------
+    const saveImagesButton = document.getElementById('save-images');
+
+    saveImagesButton.addEventListener('click', () => {
+      // stop everything
+      stopDrawing();
+      stopMagicDrawing();
+      stopErasing();
+      stopRecting();
+      // Save the original sized image
+      const tmp_canvas = document.createElement('canvas');
+      tmp_canvas.width = originalUnresizedImageData.width;
+      tmp_canvas.height = originalUnresizedImageData.height;
+
+      const ctx = tmp_canvas.getContext('2d');
+      ctx.putImageData(originalUnresizedImageData, 0, 0);
+      const DataUrl = tmp_canvas.toDataURL('image/png');
+      const ImageLink = document.createElement('a');
+      ImageLink.href = DataUrl;
+      ImageLink.download = imageName + '.png';
+      ImageLink.click();
+
+      // Save the mask image
+      const mask_canvas = document.createElement('canvas');
+      mask_canvas.width = originalUnresizedImageData.width;
+      mask_canvas.height = originalUnresizedImageData.height;
+
+      const mask_ctx = mask_canvas.getContext('2d');
+      // this can resize the image automatically
+      mask_ctx.drawImage(canvas, scaledX, scaledY, scaledWidth, scaledHeight, 
+                                  0, 0, originalUnresizedImageData.width, originalUnresizedImageData.height);
+      // change to binary mask
+      const maskdata = mask_ctx.getImageData(0, 0, mask_canvas.width, mask_canvas.height);
+
+      const maskDataUrl = mask_canvas.toDataURL('image/png');
+      const maskLink = document.createElement('a');
+      maskLink.href = maskDataUrl;
+      maskLink.download = imageName + '_mask.png';
+      maskLink.click();
+
+      // save the zip file
+      if (zipfileBase64 != null) {
+        // Decode the base64-encoded data to binary data
+        const zipData = atob(zipfileBase64);
+
+        // Convert the decoded data to a Uint8Array
+        const byteArray = new Uint8Array(zipData.length);
+        for (let i = 0; i < zipData.length; i++) {
+          byteArray[i] = zipData.charCodeAt(i);
+        }
+
+        // Create a Blob from the byteArray
+        const blob = new Blob([byteArray], { type: "application/zip" });
+
+        // Create an anchor element with a download attribute and trigger a click event to download the zip file
+        const zipLink = document.createElement('a');
+        zipLink.href = URL.createObjectURL(blob);
+        zipLink.download = imageName + '.zip';
+        zipLink.click();
+
+        // Remove the anchor element after the download is triggered
+        setTimeout(() => {
+          URL.revokeObjectURL(zipLink.href);
+          zipLink.remove();
+        }, 0);
+      }
+    });
+
+
+    // eraser tool ----------------------------------------------------------------
+    const eraserButton = document.getElementById('eraser');
+
+    eraserButton.addEventListener('click', (event) => {
+      stopDrawing();
+      stopMagicDrawing();
+      stopRecting();
+
+      // stop erase drawing
+      if (isErasing) {
+        canvas.style.cursor = 'auto';
+        isErasing = false;
+      }
+      // start erase
+      else {
+        canvas.style.cursor = `crosshair`; // change cursor to a crosshair
+        isErasing = true; 
+      }
+    });
+
+    // sparkle
+    function createSparkles() {
+      const container = document.querySelector(".sparkles-container");
+      const numberOfRows = 10;
+      const numberOfColumns = 20;
+      const rowSpacing = 100 / numberOfRows;
+      const columnSpacing = 100 / numberOfColumns;
+
+      for (let i = 0; i < numberOfRows; i++) {
+        for (let j = 0; j < numberOfColumns; j++) {
+          const sparkle = document.createElement("div");
+          sparkle.classList.add("sparkle");
+          sparkle.style.top = `${rowSpacing * i + rowSpacing / 2}%`;
+          sparkle.style.left = `${columnSpacing * j}%`;
+          sparkle.style.animationDuration = `${4}s`;
+          sparkle.style.animationDelay = `${(i + j) * 0.1}s`;
+          container.appendChild(sparkle);
+        }
+      }
+    }
+
+    function toggleSparkles(visible) {
+      const container = document.querySelector(".sparkles-container");
+      container.style.opacity = visible ? "1" : "0";
+    }
+
+    createSparkles();
+
+    // seg everything ----------------------------------------------------------------
+    const segEverythingButton = document.getElementById('seg-everything');
+
+    segEverythingButton.addEventListener('click', () => {
+      // stop everything
+      stopDrawing();
+      stopMagicDrawing();
+      stopErasing();
+      stopRecting();
+      // Show sparkles when processing starts
+      toggleSparkles(true);
+
+      // Send the image data to the server
+      fetch('/everything', {
+        method: 'POST'
+      })
+      .then((response) => response.json())
+      .then((data) => {
+        // Get the base64-encoded image strings from the JSON response
+        const maskBase64 = data.masks;
+        zipfileBase64 = data.zipfile;
+
+        const maskImage = new Image();
+        maskImage.src = `data:image/png;base64,${maskBase64}`;
+        maskImage.onload = function() {
+          const pixelData = getImagedataFromImageClass(maskImage, "everything");
+
+          const canvasData = context.getImageData(0, 0, canvas.width, canvas.height);
+          const data = canvasData.data;
+
+          // Get the pixel indices of the mask
+          for (let i = 0; i < pixelData.length; i += 4) {
+            if (pixelData[i] > 0) {
+              data[i] = random_color[pixelData[i]].r; // red
+              data[i + 1] = random_color[pixelData[i]].g; // green
+              data[i + 2] = random_color[pixelData[i]].b; // blue
+              data[i + 3] = alpha_255; // alpha
+            }
+          }
+          
+          context.putImageData(canvasData, 0, 0);
+
+          drawnPaths.push({
+            masks: pixelData,
+            type: "everything",
+          });
+        };
+      }).finally(() => {
+        toggleSparkles(false);
+      });
+    });
+
+    // seg video ----------------------------------------------------------------
+    const segVideoButton = document.getElementById('seg-video');
+
+    segVideoButton.addEventListener('click', async () => {
+      // stop everything
+      stopDrawing();
+      stopMagicDrawing();
+      stopErasing();
+      stopRecting();
+      // Show sparkles when processing starts
+      const spinnerContainer = document.getElementById("spinner-container");
+      const spinnerText = spinnerContainer.querySelector('span');
+      // Change the spinner text
+      spinnerText.innerHTML = "Preprocessing video...<br>This may take a while<br>depending on video length.";
+      // Show the spinner
+      spinnerContainer.classList.remove("d-none");
+
+      // const mask_canvas = document.createElement('canvas');
+      // mask_canvas.width = originalUnresizedImageData.width;
+      // mask_canvas.height = originalUnresizedImageData.height;
+
+      // const mask_ctx = mask_canvas.getContext('2d');
+      // // this can resize the image automatically
+      // mask_ctx.drawImage(canvas, scaledX, scaledY, scaledWidth, scaledHeight, 
+      //                             0, 0, originalUnresizedImageData.width, originalUnresizedImageData.height);
+
+      const maskBlob = await canvasToBlob(maskcanvas);
+      const maskByteArray = await blobToByteArray(maskBlob);
+
+      const formData = new FormData();
+      formData.append("ini_seg", new Blob([maskByteArray]), "image.png");
+      // Send the mask data to the server
+      fetch('/ini_seg', {
+        method: 'POST',
+        body: formData
+      })
+      .then((response) => {
+        // If the response status is 204, throw an error
+        if (response.status === 204) {
+            window.alert('Video is saved already.');
+            throw new Error('Video is saved already');
+        }
+        return response.blob();
+      })
+      .then((blob) => {
+        // Create a new URL for our video
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        
+        // Use the blob URL as the href
+        a.href = url;
+        
+        // Use the Content-Disposition filename if given, otherwise fall back to a default
+        a.download = videoName + '.mp4';
+        
+        // Append the anchor to the body and simulate a click to download the file
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      })
+      .finally(() => {
+        // Hide the spinner
+        spinnerContainer.classList.add("d-none");       
+      });
+    });
+
+	</script>
+
+
+<button id="openFolderBtn" class="btn btn-primary">Open Folder</button>
+
+<script>
+  document.getElementById('openFolderBtn').addEventListener('click', function() {
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.webkitdirectory = true;
+    input.multiple = true;
+    
+    input.addEventListener('change', function() {
+      var files = input.files;
+      for (var i = 0; i < files.length; i++) {
+        console.log(files[i].webkitRelativePath);
+      }
+    });
+    
+    input.click();
+  });
+</script>
+
+
+</body><div style="all: initial;"><div id="__hcfy__" style="all: initial;"><template shadowrootmode="open"><style>#root{-webkit-text-size-adjust:100%;box-sizing:border-box;font-size:14px;font-weight:400;letter-spacing:0;line-height:1.28581;text-transform:none;color:#182026;font-family:-apple-system,"BlinkMacSystemFont","Segoe UI","Roboto","Oxygen","Ubuntu","Cantarell","Open Sans","Helvetica Neue","Icons16",sans-serif;touch-action:manipulation}#root>.bp5-portal{z-index:9999999999}</style><link rel="stylesheet" href="chrome-extension://ikhdkkncnoglghljlkmcimlnlhkeamad/normalize.css"><link rel="stylesheet" href="chrome-extension://ikhdkkncnoglghljlkmcimlnlhkeamad/blueprint.css"><link rel="stylesheet" href="chrome-extension://ikhdkkncnoglghljlkmcimlnlhkeamad/blueprint-select.css"><link rel="stylesheet" href="chrome-extension://ikhdkkncnoglghljlkmcimlnlhkeamad/cropper.css"><style>#translate-panel{background-color:#f6f7f9;display:flex;flex-direction:column;padding-bottom:8px}.bp5-dark #translate-panel{background-color:#252a31}#translate-panel .fixed{flex-shrink:0;margin-bottom:10px}#translate-panel .body{flex-grow:1;overflow:auto;overscroll-behavior:contain}#translate-panel .body::-webkit-scrollbar{width:8px;background-color:rgba(0,0,0,0);-webkit-border-radius:100px}#translate-panel .body::-webkit-scrollbar:hover{background-color:rgba(0,0,0,.09)}#translate-panel .body::-webkit-scrollbar-thumb:vertical{background:rgba(0,0,0,.5);-webkit-border-radius:100px}#translate-panel .body::-webkit-scrollbar-thumb:vertical:active{background:rgba(0,0,0,.61);-webkit-border-radius:100px}#translate-panel.size-small,#translate-panel.size-small h6.bp5-heading,#translate-panel.size-small .bp5-control.bp5-large,#translate-panel.size-small textarea.bp5-input.bp5-small{font-size:14px}#translate-panel.size-small .phonetic-item,#translate-panel.size-small .quick-settings a{font-size:12px}#translate-panel.size-middle,#translate-panel.size-middle h6.bp5-heading,#translate-panel.size-middle .bp5-control.bp5-large,#translate-panel.size-middle textarea.bp5-input{font-size:18px}#translate-panel.size-middle .phonetic-item,#translate-panel.size-middle .quick-settings a{font-size:14px}#translate-panel.size-large,#translate-panel.size-large h6.bp5-heading,#translate-panel.size-large .bp5-control.bp5-large,#translate-panel.size-large textarea.bp5-input.bp5-large{font-size:22px}#translate-panel.size-large .source,#translate-panel.size-large .phonetic-item,#translate-panel.size-large .quick-settings a{font-size:18px}#translate-panel .bp5-button.bp5-small,#translate-panel .bp5-small .bp5-button{min-height:20px;min-width:20px}#translate-panel .header{display:flex;align-items:center;padding:4px 6px 4px 10px;border-bottom:1px solid #d1d1d1}.bp5-dark #translate-panel .header{border-bottom-color:rgba(17,20,24,.4)}#translate-panel .header .drag-block{min-width:5px;flex-shrink:0;flex-grow:1;align-self:stretch}#translate-panel .header .left{flex-shrink:0;display:flex}#translate-panel .header .right{flex-shrink:0;display:flex;align-items:center}#translate-panel .header .right .bp5-icon-arrow-right{flex-shrink:0;margin:0 5px}#translate-panel .header .right>.bp5-button{flex-shrink:0;margin:0 1px}#translate-panel .header .right>.bp5-button:last-child{margin-right:0}#translate-panel .quick-settings{padding:4px 9px;margin:0 1px}#translate-panel .quick-settings>div{margin-bottom:5px}#translate-panel .quick-settings .bp5-control{margin-bottom:0}#translate-panel .query-text{position:relative;padding:10px 10px 2px 10px}#translate-panel .query-text textarea.bp5-input{min-height:44px;font-family:system-ui,-apple-system,"Segoe UI","Roboto","Ubuntu","Cantarell","Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";overscroll-behavior:contain}#translate-panel .query-text .translate-btn{position:absolute;opacity:.6}#translate-panel .query-text .translate-btn:hover{opacity:1}#translate-panel .body{padding:0 10px}#translate-panel .body .bp5-card:first-child{margin-top:1px}#translate-panel .body .bp5-card:last-child{margin-bottom:1px}#translate-panel .body .no-api{margin:20px 0}.result-block{margin:8px 0;padding:2px 5px}.result-block .bp5-button{visibility:hidden}.result-block .error .bp5-button,.result-block:hover .bp5-button{visibility:visible}.result-block .legend{display:flex;align-items:center;justify-content:space-between}.result-block .legend .legend-left{display:flex;align-items:center}.result-block .legend .api-ico,.result-block .legend .bp5-heading{flex-shrink:0;white-space:nowrap}.result-block .legend .api-ico{display:inline-block;width:14px;height:14px;background-size:contain;margin-right:3px}.result-block .legend .bp5-heading{margin-bottom:0;margin-right:10px}.result-block .legend .source{cursor:pointer;font-size:12px;display:inline-flex;align-items:center}.result-block .legend .source .source-text{overflow:hidden}.result-block .legend .source .bp5-icon{position:relative;top:-1px;margin-left:1px}.result-block .phonetic{display:flex;flex-wrap:wrap}.result-block .phonetic .phonetic-item{display:flex;align-items:center;font-size:12px}.result-block .phonetic .phonetic-item:not(:last-child){margin-right:12px}.result-block .common-result p{line-height:1.3;margin:2px 0;overflow-wrap:break-word}.result-block .common-result .dict a{text-decoration:underline}.result-block .error{font-size:12px;padding:5px 10px}.result-block .dict-pos{margin-right:5px}.external-translators{margin-bottom:3px;padding:0;display:flex;flex-wrap:wrap}.external-translators>div{margin:0 5px 5px 0}.quick-links a{margin:0 5px 5px 0}#popper-container{width:250px;max-width:100%;position:absolute;left:0;top:0;z-index:9999999998;touch-action:none;transition:opacity .2s;background-color:#f6f7f9}.bp5-dark #popper-container{background-color:#252a31}#popper-container.show{opacity:1;pointer-events:auto;-moz-user-select:auto;user-select:auto}#popper-container,#popper-container[data-popper-reference-hidden=true]{opacity:0;pointer-events:none;-moz-user-select:none;user-select:none}#popper-container .drag-block{cursor:-webkit-grab;cursor:grab}#popper-container.pin{position:fixed}#popper-container.pin .arrow{display:none}#popper-container .arrow,#popper-container .arrow::before{position:absolute;width:8px;height:8px;z-index:-1}#popper-container .arrow::before{content:"";transform:rotate(45deg);background:#f6f7f9}.bp5-dark #popper-container .arrow::before{background-color:#252a31}#popper-container .arrow{display:none}#popper-container.show[data-popper-placement]:not([data-popper-reference-hidden=true]) .arrow{display:block}#popper-container[data-popper-placement^=top] .arrow{bottom:-5px}#popper-container[data-popper-placement^=top] .arrow::before{border-right:1px solid #d1d1d1;border-bottom:1px solid #d1d1d1}#popper-container[data-popper-placement^=bottom] .arrow{top:-5px}#popper-container[data-popper-placement^=bottom] .arrow::before{border-left:1px solid #d1d1d1;border-top:1px solid #d1d1d1}#popper-container[data-popper-placement^=left] .arrow{right:-5px}#popper-container[data-popper-placement^=left] .arrow::before{border-right:1px solid #d1d1d1;border-top:1px solid #d1d1d1}#popper-container[data-popper-placement^=right] .arrow{left:-5px}#popper-container[data-popper-placement^=right] .arrow::before{border-left:1px solid #d1d1d1;border-bottom:1px solid #d1d1d1}#translate-btn{display:none;position:absolute;z-index:9999999999;left:0;top:0}#translate-btn .bp5-button{padding:2px;min-width:0;min-height:0}#translate-btn .btn-icon{width:18px;height:18px;background-image:url(chrome-extension://ikhdkkncnoglghljlkmcimlnlhkeamad/logo.png);background-size:contain}.bp5-dark #translate-btn .btn-icon{background-image:url(chrome-extension://ikhdkkncnoglghljlkmcimlnlhkeamad/logowhite36.png)}#translate-btn.show{display:block}.translate-type-selector .bp5-label{display:inline}.translate-type-selector .bp5-radio{margin-bottom:0}#ocr-container{position:fixed;z-index:99999999999999;left:0;top:0;right:0;bottom:0}#ocr-container .toolbar{display:none;position:absolute;z-index:1}#ocr-container img{max-width:100%}#app{cursor:default}.switch-pin{flex-shrink:0;cursor:pointer}.switch-pin .bp5-icon-pin{transition:transform .2s,color .2s;transform:rotate(-45deg)}.pin .switch-pin .bp5-icon-pin{transform:rotate(-70deg)}.cut-btn{margin-left:2px}.app-toaster-container{position:fixed !important;z-index:9999999999 !important}.app-toaster-container .bp5-toast{min-width:auto}#web-trs-panel .app-toaster-container{padding-right:0;padding-left:0}#web-trs-panel .page-trs-form-group{margin:0 0 0 0;align-items:center}#web-trs-panel .page-trs-form-group>label{width:70px}</style><div id="root" dir="ltr"><div id="app"><div id="translate-btn"><button type="button" class="bp5-button"><span class="btn-icon"></span></button></div><div id="popper-container" class="pin bp5-elevation-4" style="width: 427px; transform: translate(0px, 0px);"><div id="translate-panel" class="size-small" style="max-height: 932px;"><div class="fixed"><div class="header"><div class="left"><div class="switch-pin"><button type="button" class="bp5-button bp5-active bp5-minimal bp5-small"><span aria-hidden="true" class="bp5-icon bp5-icon-pin"><svg data-icon="pin" height="14" role="img" viewBox="0 0 16 16" width="14"><path d="M9.41.92c-.51.51-.41 1.5.15 2.56L4.34 7.54C2.8 6.48 1.45 6.05.92 6.58l3.54 3.54-3.54 4.95 4.95-3.54 3.54 3.54c.53-.53.1-1.88-.96-3.42l4.06-5.22c1.06.56 2.04.66 2.55.15L9.41.92z" fill-rule="evenodd"></path></svg></span></button></div><button type="button" title="&#22270;&#29255;&#32763;&#35793;" class="bp5-button bp5-minimal bp5-small"><span aria-hidden="true" class="bp5-icon bp5-icon-media"><svg data-icon="media" height="14" role="img" viewBox="0 0 16 16" width="14"><path d="M11.99 6.99c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1zm3-5h-14c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h14c.55 0 1-.45 1-1v-10c0-.55-.45-1-1-1zm-1 9l-5-3-1 2-3-4-3 5v-7h12v7z" fill-rule="evenodd"></path></svg></span></button><button type="button" title="&#35821;&#38899;&#32763;&#35793;" class="bp5-button bp5-minimal bp5-small"><span class="bp5-icon"><svg version="1.1" id="Capa_1" width="14" height="14" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 490.9 490.9" xml:space="preserve"><g><g><path d="M245.5,322.9c53,0,96.2-43.2,96.2-96.2V96.2c0-53-43.2-96.2-96.2-96.2s-96.2,43.2-96.2,96.2v130.5 C149.3,279.8,192.5,322.9,245.5,322.9z M173.8,96.2c0-39.5,32.2-71.7,71.7-71.7s71.7,32.2,71.7,71.7v130.5 c0,39.5-32.2,71.7-71.7,71.7s-71.7-32.2-71.7-71.7V96.2z"></path><path d="M94.4,214.5c-6.8,0-12.3,5.5-12.3,12.3c0,85.9,66.7,156.6,151.1,162.8v76.7h-63.9c-6.8,0-12.3,5.5-12.3,12.3 s5.5,12.3,12.3,12.3h152.3c6.8,0,12.3-5.5,12.3-12.3s-5.5-12.3-12.3-12.3h-63.9v-76.7c84.4-6.3,151.1-76.9,151.1-162.8 c0-6.8-5.5-12.3-12.3-12.3s-12.3,5.5-12.3,12.3c0,76.6-62.3,138.9-138.9,138.9s-138.9-62.3-138.9-138.9 C106.6,220,101.2,214.5,94.4,214.5z"></path></g></g></svg></span></button></div><div class="drag-block" title="&#25353;&#20303;&#19981;&#25918;&#21487;&#20197;&#25302;&#21160;"></div><div class="right"><button type="button" disabled="" title="&#28155;&#21152;&#21040;&#25910;&#34255;&#22841;" class="bp5-button bp5-disabled bp5-minimal bp5-small" tabindex="-1"><span aria-hidden="true" class="bp5-icon bp5-icon-star-empty"><svg data-icon="star-empty" height="14" role="img" viewBox="0 0 16 16" width="14"><path d="M16 6.11l-5.53-.84L8 0 5.53 5.27 0 6.11l4 4.1L3.06 16 8 13.27 12.94 16 12 10.21l4-4.1zM4.91 13.2l.59-3.62L3 7.02l3.45-.53L8 3.2l1.55 3.29 3.45.53-2.5 2.56.59 3.62L8 11.49 4.91 13.2z" fill-rule="evenodd"></path></svg></span></button><button type="button" class="bp5-button bp5-minimal bp5-small settings" title="&#24555;&#25463;&#35774;&#32622;"><span aria-hidden="true" class="bp5-icon bp5-icon-cog"><svg data-icon="cog" height="14" role="img" viewBox="0 0 16 16" width="14"><path d="M15.19 6.39h-1.85c-.11-.37-.27-.71-.45-1.04l1.36-1.36c.31-.31.31-.82 0-1.13l-1.13-1.13a.803.803 0 00-1.13 0l-1.36 1.36c-.33-.17-.67-.33-1.04-.44V.79c0-.44-.36-.8-.8-.8h-1.6c-.44 0-.8.36-.8.8v1.86c-.39.12-.75.28-1.1.47l-1.3-1.3c-.3-.3-.79-.3-1.09 0L1.82 2.91c-.3.3-.3.79 0 1.09l1.3 1.3c-.2.34-.36.7-.48 1.09H.79c-.44 0-.8.36-.8.8v1.6c0 .44.36.8.8.8h1.85c.11.37.27.71.45 1.04l-1.36 1.36c-.31.31-.31.82 0 1.13l1.13 1.13c.31.31.82.31 1.13 0l1.36-1.36c.33.18.67.33 1.04.44v1.86c0 .44.36.8.8.8h1.6c.44 0 .8-.36.8-.8v-1.86c.39-.12.75-.28 1.1-.47l1.3 1.3c.3.3.79.3 1.09 0l1.09-1.09c.3-.3.3-.79 0-1.09l-1.3-1.3c.19-.35.36-.71.48-1.1h1.85c.44 0 .8-.36.8-.8v-1.6a.816.816 0 00-.81-.79zm-7.2 4.6c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z" fill-rule="evenodd"></path></svg></span></button><button type="button" title="&#20851;&#38381;(Esc)" class="bp5-button bp5-minimal bp5-small"><span aria-hidden="true" class="bp5-icon bp5-icon-cross"><svg data-icon="cross" height="18" role="img" viewBox="0 0 16 16" width="18"><path d="M9.41 8l3.29-3.29c.19-.18.3-.43.3-.71a1.003 1.003 0 00-1.71-.71L8 6.59l-3.29-3.3a1.003 1.003 0 00-1.42 1.42L6.59 8 3.3 11.29c-.19.18-.3.43-.3.71a1.003 1.003 0 001.71.71L8 9.41l3.29 3.29c.18.19.43.3.71.3a1.003 1.003 0 00.71-1.71L9.41 8z" fill-rule="evenodd"></path></svg></span></button></div></div><div class="bp5-collapse"><div class="bp5-collapse-body" aria-hidden="true"><div class="quick-settings bp5-card bp5-elevation-0"><div><span aria-controls="listbox-0" aria-expanded="false" aria-haspopup="listbox" class="lang-select bp5-popover-target" role="combobox"><button type="button" class="bp5-button bp5-small"><span class="bp5-button-text">&#33258;&#21160;&#26816;&#27979;</span><span aria-hidden="true" class="bp5-icon bp5-icon-caret-down"><svg data-icon="caret-down" height="16" role="img" viewBox="0 0 16 16" width="16"><path d="M12 6.5c0-.28-.22-.5-.5-.5h-7a.495.495 0 00-.37.83l3.5 4c.09.1.22.17.37.17s.28-.07.37-.17l3.5-4c.08-.09.13-.2.13-.33z" fill-rule="evenodd"></path></svg></span></button></span><span aria-hidden="true" class="bp5-icon bp5-icon-arrow-right" style="margin: 0px 10px;"><svg data-icon="arrow-right" height="12" role="img" viewBox="0 0 16 16" width="12"><path d="M14.7 7.29l-5-5a.965.965 0 00-.71-.3 1.003 1.003 0 00-.71 1.71l3.29 3.29H1.99c-.55 0-1 .45-1 1s.45 1 1 1h9.59l-3.29 3.29a1.003 1.003 0 001.42 1.42l5-5c.18-.18.29-.43.29-.71s-.12-.52-.3-.7z" fill-rule="evenodd"></path></svg></span><span aria-controls="listbox-1" aria-expanded="false" aria-haspopup="listbox" class="lang-select bp5-popover-target" role="combobox"><button type="button" class="bp5-button bp5-small"><span class="bp5-button-text">&#20013;&#25991;(&#31616;&#20307;)</span><span aria-hidden="true" class="bp5-icon bp5-icon-caret-down"><svg data-icon="caret-down" height="16" role="img" viewBox="0 0 16 16" width="16"><path d="M12 6.5c0-.28-.22-.5-.5-.5h-7a.495.495 0 00-.37.83l3.5 4c.09.1.22.17.37.17s.28-.07.37-.17l3.5-4c.08-.09.13-.2.13-.33z" fill-rule="evenodd"></path></svg></span></button></span></div><div><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>&#35895;&#27468;</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox" checked=""><span class="bp5-control-indicator"></span>DeepL</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>ChatGPT</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>Gemini</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>&#30789;&#22522;</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>&#28151;&#20803;</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>&#25991;&#24515;</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>&#26234;&#35889;</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>&#35910;&#21253;</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>&#36890;&#20041;</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>DeepSeek</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>&#38646;&#19968;</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>MiniMax</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>&#30334;&#24029;</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>Kimi</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox" checked=""><span class="bp5-control-indicator"></span>&#30334;&#24230;</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox" checked=""><span class="bp5-control-indicator"></span>&#30334;&#24230;(&#19987;&#19994;&#29256;)</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>&#33150;&#35759;</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>&#24425;&#20113;</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>&#38463;&#37324;</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>&#38463;&#37324;(&#19987;&#19994;&#29256;)</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>&#26377;&#36947;</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>&#28779;&#23665;</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox" checked=""><span class="bp5-control-indicator"></span>&#24517;&#24212;&#35789;&#20856;</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>&#25628;&#29399;</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox" checked=""><span class="bp5-control-indicator"></span>Yandex</label></div><div><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>&#33258;&#21160;&#26391;&#35835;</label><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>&#33258;&#21160;&#22797;&#21046;</label></div><div class="bp5-radio-group"><label class="bp5-control bp5-radio bp5-inline"><input name="Blueprint5.RadioGroup-0" type="radio" value="small" checked=""><span class="bp5-control-indicator"></span>&#23567;</label><label class="bp5-control bp5-radio bp5-inline"><input name="Blueprint5.RadioGroup-0" type="radio" value="middle"><span class="bp5-control-indicator"></span>&#20013;</label><label class="bp5-control bp5-radio bp5-inline"><input name="Blueprint5.RadioGroup-0" type="radio" value="large"><span class="bp5-control-indicator"></span>&#22823;</label></div><div><label class="bp5-control bp5-checkbox bp5-inline"><input type="checkbox"><span class="bp5-control-indicator"></span>&#26174;&#31034;&#25991;&#26412;&#26694;</label><label class="bp5-control bp5-checkbox bp5-inline" style="margin-right: 0px;"><input type="checkbox"><span class="bp5-control-indicator"></span>&#40736;&#26631;&#24748;&#28014;&#21462;&#35789;</label></div><a class="bp5-text-small">&#25171;&#24320;&#23436;&#25972;&#35774;&#32622;</a></div></div></div></div><div class="body"><p>&#35831;&#36755;&#20837;&#38656;&#35201;&#32763;&#35793;&#30340;&#25991;&#26412;&#12290;</p></div></div><div class="arrow"></div></div><div id="web-trs-panel"></div></div></div></template></div></div></html>
