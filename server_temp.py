@@ -387,6 +387,31 @@ async def undo_mask():
 
 from fastapi import Request
 
+@app.post("/save-mask")
+async def save_mask(request: Request, folder: str):
+    form = await request.form()
+    mask_file = form['mask']
+    # 获取运行目录的绝对路径
+    base_dir = os.getcwd()
+
+    # 用户选择的文件夹路径
+    selected_folder_path = os.path.join(base_dir, folder)
+
+    # 确保new-mask文件夹存在
+    save_path = os.path.join(selected_folder_path, "new-mask")
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+
+    file_location = os.path.join(save_path, mask_file.filename)
+
+    # 保存文件到指定位置
+    with open(file_location, "wb") as file_object:
+        file_object.write(await mask_file.read())
+
+    return JSONResponse(
+        content={"message": "Mask saved successfully"},
+        status_code=200
+    )
 
 @app.post("/click")   # magic-tool
 async def click_images(
@@ -403,8 +428,8 @@ async def click_images(
     point_coords = np.array(click_list, np.float32).reshape(-1, 2)
     point_labels = np.array(type_list).reshape(-1)
 
-    print('8888888',point_coords)
-    print('9999999',point_labels)
+    # print('8888888',point_coords)
+    # print('9999999',point_labels)
 
     if (len(point_coords) == 1):
         mask_input = None
@@ -437,31 +462,34 @@ async def click_images(
         interactive_mask.append(res)
     else:
         interactive_mask[len_prompt-1] = res
-
+    # file name
+    # buffered = BytesIO()
+    # buffered = buffered.getvalue()
+    # print('__________________', buffered)
     # Return a JSON response
     # 输出最大轮廓的外接矩形框坐标
-    mask1 = masks_[0]
-    mask1 = mask1*255
-    mask1 = mask1.astype(np.uint8)
-    # 找到所有轮廓，并得到最大轮廓
-    contours, _ = cv2.findContours(mask1, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    if len(contours) > 0:
-        max_contour = max(contours, key=cv2.contourArea)
-
-        k1 = max_contour.squeeze(1)
-        x1 = min(k1[:, 0])
-        x2 = max(k1[:, 0])
-        y2 = max(k1[:, 1])
-        y1 = min(k1[:, 1])
-
-        print('*******', [x1, y1, x2, y2])
-
-        cv2.rectangle(mask1, (x1, y1), (x2, y2),(255,0,0),2,3)
-        cv2.imwrite('mask1.png', mask1)
+    # mask1 = masks_[0]
+    # mask1 = mask1*255
+    # mask1 = mask1.astype(np.uint8)
+    # # 找到所有轮廓，并得到最大轮廓
+    # contours, _ = cv2.findContours(mask1, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # if len(contours) > 0:
+    #     max_contour = max(contours, key=cv2.contourArea)
+    #
+    #     k1 = max_contour.squeeze(1)
+    #     x1 = min(k1[:, 0])
+    #     x2 = max(k1[:, 0])
+    #     y2 = max(k1[:, 1])
+    #     y1 = min(k1[:, 1])
+    #
+    #     print('*******', [x1, y1, x2, y2])
+    #
+    #     cv2.rectangle(mask1, (x1, y1), (x2, y2),(255,0,0),2,3)
+        # cv2.imwrite('mask1.png', mask1)
 
 
     #
-    print('10000', res)
+    # print('10000', res)
     res = Image.fromarray(res)
     return JSONResponse(
         content={
@@ -603,4 +631,4 @@ async def read_index():
     return read_content('segDrawer_copy.html')
 
 import uvicorn
-uvicorn.run(app, host="0.0.0.0", port=7860)
+uvicorn.run(app, host="0.0.0.0", port=7078)

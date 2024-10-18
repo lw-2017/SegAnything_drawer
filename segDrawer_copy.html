@@ -1,181 +1,209 @@
 <html lang="en">
 
 <head>
-	<!-- <link href="./all.css" rel="stylesheet"> -->
 	<link href="assets/css/all.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+	<style>
+		body {
+			margin: 0;
+			height: 100vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: row; /* 水平排列画板和说明 */
+		}
 
-    /*@font-face {
-      font-family: 'FontAwesome';
-      src: url('./fa-solid-900.ttf') format('truetype'),
-      url('./fa-solid-900.woff2') format('woff2');
-      font-weight: normal;
-      font-style: normal;
-    }*/
+		#canvas-wrapper {
+			position: relative;
+			width: 500px;
+			height: 500px;
+			margin-right: 20px; /* 给右侧说明留出空间 */
+		}
 
-    #canvas-wrapper {
-      position: relative;
-      width: 500px;
-      height: 500px;
-    }
+		#instructions {
+			max-width: 200px; /* 设置说明区域的最大宽度 */
+			padding: 10px;
+			border: 1px solid #ccc;
+			border-radius: 8px;
+			background-color: #f9f9f9; /* 说明区域的背景色 */
+			overflow: auto; /* 如果内容溢出，则显示滚动条 */
+			font-size: 12px; /* 调整字体大小 */
+		}
 
-    #slider-wrapper {
-      display: none;
-      position: absolute; /* Add this line */
-      z-index: 10; /* Add this line */
-      top: 47px; /* Adjust this value */
-      right: 50px; /* Adjust this value */
-    }
+		#slider-wrapper {
+			display: none;
+			position: absolute;
+			z-index: 10;
+			top: 47px;
+			right: 50px;
+		}
 
-    #canvas {
-      position: absolute;
-      border: 1px solid black;
-      width: 100%;
-      height: 100%;
-    }
+		#canvas {
+			position: absolute;
+			border: 1px solid black;
+			width: 100%;
+			height: 100%;
+		}
 
-    #image-canvas, #temp-canvas {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-    }
+		#image-canvas,
+		#temp-canvas {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+		}
 
-    .button-wrapper {
-      position: absolute;
-      top: 0;
-      right: 0;
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-    }
+		.button-wrapper {
+			display: flex;
+			justify-content: center;
+			flex-wrap: wrap;
+			margin-top: 10px; /* 适当的间距 */
+		}
 
-    .button {
-      background-color: #4CAF50;
-      border: none;
-      border-radius: 8px;
-      color: white;
-      padding: 4px 8px;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-      font-size: 12px;
-      margin: 2px 0;
-      cursor: pointer;
-      width: 32px;
-      height: 32px;
-    }
+		.button {
+			background-color: #4CAF50;
+			border: none;
+			border-radius: 8px;
+			color: white;
+			padding: 4px 8px;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			font-size: 12px;
+			margin: 2px;
+			cursor: pointer;
+			width: 32px;
+			height: 32px;
+		}
 
-    #file-input-wrapper {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 500px;
-      height: 500px;
-      cursor: pointer;
-    }
+		#file-input-wrapper {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 500px;
+			height: 500px;
+			cursor: pointer;
+		}
 
-    #file-input-wrapper input[type=file] {
-      opacity: 0;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      cursor: pointer;
-    }
+		#file-input-wrapper input[type=file] {
+			opacity: 0;
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			cursor: pointer;
+		}
 
-    #spinner-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    #spinner-container span {
-      font-family: Arial, sans-serif;
-      font-size: 16px;
-      color: #333;
-      margin-top: 10px;
-    }
+		#spinner-container {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
 
-    /* Sparkles */
-    .sparkles-container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      pointer-events: none;
-      opacity: 0; /* Hide the sparkles by default */
-    }
+		#spinner-container span {
+			font-family: Arial, sans-serif;
+			font-size: 16px;
+			color: #333;
+			margin-top: 10px;
+		}
 
-    .sparkle {
-      position: absolute;
-      width: 8px;
-      height: 8px;
-      background-color: #fff;
-      border-radius: 50%;
-      animation: sparkle 4s linear infinite;
-    }
+		/* Sparkles */
+		.sparkles-container {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+			pointer-events: none;
+			opacity: 0;
+		}
 
-    @keyframes sparkle {
-      0% {
-        transform: translateX(-10%) scale(0);
-        opacity: 0;
-      }
-      5% {
-        opacity: 1;
-      }
-      100% {
-        transform: translateX(110%) scale(1);
-        opacity: 0;
-      }
-    }
+		.sparkle {
+			position: absolute;
+			width: 8px;
+			height: 8px;
+			background-color: #fff;
+			border-radius: 50%;
+			animation: sparkle 4s linear infinite;
+		}
 
-  </style>
+		@keyframes sparkle {
+			0% {
+				transform: translateX(-10%) scale(0);
+				opacity: 0;
+			}
+			5% {
+				opacity: 1;
+			}
+			100% {
+				transform: translateX(110%) scale(1);
+				opacity: 0;
+			}
+		}
+	</style>
 </head>
 
 <body>
-	
 	<div id="canvas-wrapper">
-	  <canvas id="canvas"></canvas>
-    <canvas id="image-canvas"></canvas>
-    <canvas id="temp-canvas" style="pointer-events: none;"></canvas>
-    <div class="sparkles-container"></div>
-	  <div class="button-wrapper">
-	  	<button class="button" id="remove-image"><i class="fas fa-times"></i></button>
-          <button class="button" id="open_fold"><i class="fas fa-folder-open"></i></button>
-      <button class="button" id="draw-mask"><i class="fas fa-pencil"></i></button>
-      <button class="button" id="magic-tool"><i class="fas fa-wand-magic-sparkles"></i></button>
-      <button class="button" id="draw-rect"><i class="fas fa-shapes"></i></button>
-      <button class="button" id="seg-everything"><i class="fas fa-fill-drip"></i></button>
-      <button class="button" id="undo-path"><i class="fas fa-undo"></i></button>
-      <button class="button" id="eraser"><i class="fa-solid fa-eraser"></i></button>
-      <button class="button" id="save-images"><i class="fas fa-download"></i></button>
-      <button class="button" id="seg-video"><i class="fa-solid fa-film"></i></button>
-	  </div>
-	  <div id="slider-wrapper">
-		  <input type="range" min="1" max="100" value="50" class="slider" id="brush-size">
-	  </div>
-	  <div id="file-input-wrapper">
-	  	<input type="file" id="file-input">
-	  </div>
+		<canvas id="canvas"></canvas>
+		<canvas id="image-canvas"></canvas>
+		<canvas id="temp-canvas" style="pointer-events: none;"></canvas>
+		<div class="sparkles-container"></div>
+		<div id="file-input-wrapper">
+			<input type="file" id="file-input">
+		</div>
+		<div id="image-info" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%);"></div>
 	</div>
 
-  <div id="spinner-container" class="position-fixed top-50 start-50 translate-middle d-none">
-      <div class="spinner-border text-primary" role="status"></div>
-      <span style="color: #dc3545; font-size: 2em;">Preprocessing image...</span>
-  </div>
+	<!-- 使用方法介绍区域 -->
+	<div id="instructions">
+		<h5>使用方法介绍</h5>
+		<p>1. 使用文件上传按钮选择图片。</p>
+		<p>2. 选择工具进行图像标注。</p>
+		<p>3. 按钮操作包括：</p>
+		<ul>
+			<li>移除图像</li>
+			<li>画笔工具</li>
+			<li>魔法工具</li>
+			<li>保存图像</li>
+		</ul>
+		<p>4. 点击“选择”按钮选择文件夹。</p>
+
+		<!-- 按钮容器，放置在介绍区域 -->
+		<div class="button-wrapper">
+			<button class="button" id="remove-image"><i class="fas fa-times"></i></button>
+			<button class="button" id="open_fold"><i class="fas fa-folder-open"></i>x</button>
+			<button class="button" id="draw-mask"><i class="fas fa-pencil"></i></button>
+			<button class="button" id="magic-tool"><i class="fas fa-wand-magic-sparkles"></i></button>
+			<button class="button" id="draw-rect"><i class="fas fa-shapes"></i></button>
+			<button class="button" id="seg-everything"><i class="fas fa-fill-drip"></i>x</button>
+			<button class="button" id="undo-path"><i class="fas fa-undo"></i></button>
+			<button class="button" id="eraser"><i class="fa-solid fa-eraser"></i></button>
+			<button class="button" id="save-images"><i class="fas fa-download"></i>x</button>
+			<button class="button" id="seg-video"><i class="fas fa-film"></i>x</button>
+			<button class="button" id="select-path"><i class="fas fa-folder-open"></i> Select</button>
+			<input type="file" id="folder-input" webkitdirectory multiple style="display: none;">
+			<button class="button" id="upload-folder"><i class="fas fa-folder"></i></button>
+			<button class="button" id="prev-image"><i class="fas fa-arrow-left"></i></button>
+			<button class="button" id="next-image"><i class="fas fa-arrow-right"></i></button>
+			<button class="button" id="save-mask"><i class="fas fa-save"></i></button>
+			<button class="button" id="delete-mask"><i class="fas fa-trash"></i></button>
+		</div>
+	</div>
+
+	<div id="slider-wrapper">
+		<input type="range" min="1" max="100" value="50" class="slider" id="brush-size">
+	</div>
+
+	<div id="spinner-container" class="position-fixed top-50 start-50 translate-middle d-none">
+		<div class="spinner-border text-primary" role="status"></div>
+		<span style="color: #dc3545; font-size: 2em;">Preprocessing image...</span>
+	</div>
+</body>
+
 
 
 
@@ -1138,7 +1166,7 @@
         stopMagicDrawing();
       }
     });
-    // open_fold -------------------------------
+    // open_fold start-------------------------------
 
     // open fold end ----------------------------
 
@@ -1381,6 +1409,151 @@
         spinnerContainer.classList.add("d-none");       
       });
     });
+
+    // 新添加代码--------------------------------start-----------------
+    const folderInput = document.getElementById('folder-input');
+    const uploadFolderButton = document.getElementById('upload-folder');
+    const prevImageButton = document.getElementById('prev-image');
+    const nextImageButton = document.getElementById('next-image');
+
+    let imagesArray = [];
+    let currentIndex = 0;
+
+    uploadFolderButton.addEventListener('click', () => {
+        folderInput.click();
+    });
+
+    folderInput.addEventListener('change', (event) => {
+        imagesArray = Array.from(event.target.files).filter(file => file.type.startsWith('image/'));
+        if (imagesArray.length > 0) {
+            currentIndex = 0;
+            loadImage(imagesArray[currentIndex]);
+        }
+    });
+
+    prevImageButton.addEventListener('click', () => {
+        if (imagesArray.length > 0) {
+            currentIndex = (currentIndex - 1 + imagesArray.length) % imagesArray.length;
+            loadImage(imagesArray[currentIndex]);
+        }
+    });
+
+    nextImageButton.addEventListener('click', () => {
+        if (imagesArray.length > 0) {
+            currentIndex = (currentIndex + 1) % imagesArray.length;
+            loadImage(imagesArray[currentIndex]);
+        }
+    });
+
+    // 添加图片显示信息
+    function updateImageInfo() {
+    const totalImages = imagesArray.length;
+    const currentImageId = currentIndex + 1; // 当前图片ID从1开始
+    const currentImageName = imagesArray[currentIndex].name;
+
+    // 更新顶部信息
+    const infoText = `${currentImageName}            ${currentImageId}/${totalImages}`;
+    const infoDiv = document.getElementById('image-info'); // 假设你有一个用于显示信息的div
+    infoDiv.textContent = infoText;
+    infoDiv.style.textAlign = 'center'; // 居中显示
+	}
+
+    function loadImage(file) {
+        const image = new Image();
+        image.onload = () => {
+            handleImage(file, false); // 调用已有的 handleImage 函数进行处理
+        	updateImageInfo(); // 更新图片信息
+        };
+        image.src = URL.createObjectURL(file);
+    }
+
+    // 保存mask 图片按钮
+    const selectPathButton = document.getElementById('select-path');
+    // const savePathInput = document.getElementById('save-path');
+
+    const saveMaskButton = document.getElementById('save-mask');
+
+    let folderPath = ''; // 用于保存用户选择或输入的路径
+
+    // 当用户选择文件夹时，记录文件夹路径
+<!--    folderInput.addEventListener('change', (event) => {-->
+<!--        imagesArray = Array.from(event.target.files).filter(file => file.type.startsWith('image/'));-->
+<!--        if (imagesArray.length > 0) {-->
+<!--            // 获取第一个文件的路径，并截取出文件夹路径-->
+<!--            // const fullPath = event.target.files[0].webkitRelativePath;-->
+<!--            // folderPath = fullPath.substring(0, fullPath.indexOf("/"));-->
+<!--            // 获取第一个文件的完整路径（不截取）-->
+<!--            folderPath = event.target.files[0].webkitRelativePath.split('/')[0]; // 获取文件夹完整路径-->
+<!--            // folderPath = event.target.files; // 获取文件夹完整路径-->
+<!--            console.log("Selected folder path:", folderPath);-->
+
+<!--            currentIndex = 0;-->
+<!--            loadImage(imagesArray[currentIndex]);-->
+<!--        }-->
+<!--    });-->
+    // 当用户点击选择路径按钮时，弹出一个对话框让用户输入路径
+    selectPathButton.addEventListener('click', () => {
+        const path = prompt("Please enter a save path:", folderPath);
+        if (path) {
+            folderPath = path; // 保存用户输入的路径
+            // savePathInput.value = folderPath; // 在输入框中显示路径
+        }
+    });
+
+
+    // 保存mask图像并清除画布上的mask图
+    saveMaskButton.addEventListener('click', () => {
+        // 确保用户已选择文件夹
+        if (!folderPath) {
+            alert("请先上传一个文件夹");
+            return;
+        }
+
+        // 创建一个临时画布来保存mask
+        const mask_canvas = document.createElement('canvas');
+        mask_canvas.width = originalUnresizedImageData.width;
+        mask_canvas.height = originalUnresizedImageData.height;
+
+        const mask_ctx = mask_canvas.getContext('2d');
+        mask_ctx.drawImage(canvas, scaledX, scaledY, scaledWidth, scaledHeight,
+                           0, 0, originalUnresizedImageData.width, originalUnresizedImageData.height);
+
+        // 将mask图像转换为blob并发送到后端
+        mask_canvas.toBlob((blob) => {
+            const formData = new FormData();
+            formData.append('mask', blob, `${imageName}_mask.png`);
+
+            fetch(`/save-mask?folder=${encodeURIComponent(folderPath)}`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log("Mask saved successfully!");
+                } else {
+                    console.error("Failed to save mask");
+                }
+            });
+
+            // 清除mask图
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            // imageContext.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
+        }, 'image/png');
+    });
+
+    //删除mask图按钮
+    const deleteMaskButton = document.getElementById('delete-mask');
+
+    // 删除mask图像的事件监听器
+    deleteMaskButton.addEventListener('click', () => {
+        // 只清除mask画布上的内容，而保留原图画布
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        console.log("Mask removed from the canvas while keeping the original image.");
+    });
+	// 添加图片信息
+
+
+
 
 	</script>
 
